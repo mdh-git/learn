@@ -1,0 +1,49 @@
+package com.mdh.selenium;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+/**
+ *
+ * @author madonghao
+ * @date 2018/10/16
+ */
+public class AssertDemo {
+
+    public static void main(String[] args) throws InterruptedException {
+
+        WebDriver driver = new ChromeDriver();
+        driver.get("https://www.baidu.com");
+
+        System.out.println("Search before================");
+
+        //获取当前的 title 和 url
+        System.out.printf("title of current page is %s\n", driver.getTitle());
+        System.out.printf("url of current page is %s\n", driver.getCurrentUrl());
+
+        //百度搜索
+        WebElement search = driver.findElement(By.id("kw"));
+        search.sendKeys("Selenium");
+        search.sendKeys(Keys.ENTER);
+        Thread.sleep(2000);
+
+        System.out.println("Search after================");
+
+        //获取当前的 title 和 url
+        System.out.printf("title of current page is %s\n", driver.getTitle());
+        System.out.printf("url of current page is %s\n", driver.getCurrentUrl());
+        //System.out.printf("pageSource of current page is %s\n", driver.getPageSource());
+
+        //获取第一条搜索结果的标题
+        WebElement result = driver.findElement(By.xpath("//div[@id='content_left']/div/h3/a"));
+        System.out.println("result :" + result.getText());
+
+        WebElement result1 = driver.findElement(By.xpath("//*[@id=\"1\"]/h3/a"));
+        System.out.println("result1 :" + result.getText());
+
+        driver.quit();
+    }
+}
