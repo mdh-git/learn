@@ -1,5 +1,9 @@
 package com.mdh.datastructure.stackinfo;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 /**
  *
  * @author madonghao
@@ -31,7 +35,7 @@ public class CharStack {
 
     /** 出栈，删除栈顶元素，同时，栈顶元素的下标减一 */
     public char pop() {
-        return stackArray[--top];
+        return stackArray[top--];
     }
 
     /** 查看栈顶元素，但不删除 */
@@ -47,5 +51,25 @@ public class CharStack {
     /** 判满 */
     public boolean isFull(){
         return (top == size - 1);
+    }
+
+    public static void main(String[] args) {
+
+        System.out.println("输入需要检测的字符串：");
+        String str = getString();
+        BrecketChecker checker = new BrecketChecker(str);
+        checker.check();
+    }
+
+    public static String getString() {
+        String str = "";
+        try {
+            InputStreamReader reader = new InputStreamReader(System.in);
+            BufferedReader bufferedReader = new BufferedReader(reader);
+            str = bufferedReader.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return str;
     }
 }
