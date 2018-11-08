@@ -1,0 +1,308 @@
+ArrayList是一个支持泛型的，底层通过数组实现的一个可以存任意类型的数据结构，源码中的定义如下:
+public class ArrayList<E> extends AbstractList<E>
+        implements List<E>, RandomAccess, Cloneable, java.io.Serializable{
+        }
+
+ArrayList类继承了AbstractList抽象类，AbstractList提供了List接口的默认实现
+ArrayList实现了以下几个接口:
+List<E>: 接口约定List的操作规范，提供了一系列操作方法约定
+RandomAccess接口: 该接口约定其实现类支持随机访问，即可以通过下标的方式访问其中的元素
+Cloneable接口: 约定其实现类实例是可以被克隆的，通过调用Object.clone方法返回该对象的浅拷贝
+Serializable接口: 约定其实现类实例可以被序列化和反序列化
+
+    // 版本号
+    private static final long serialVersionUID = 8683452581122892189L;
+
+    /**
+     * 缺省容量
+     * Default initial capacity.
+     */
+    private static final int DEFAULT_CAPACITY = 10;
+
+    /**
+     * 空对象数组
+     * Shared empty array instance used for empty instances.
+     */
+    private static final Object[] EMPTY_ELEMENTDATA = {};
+
+    /**
+     * 缺省空对象数组
+     * Shared empty array instance used for default sized empty instances. We
+     * distinguish this from EMPTY_ELEMENTDATA to know how much to inflate when
+     * first element is added.
+     */
+    private static final Object[] DEFAULTCAPACITY_EMPTY_ELEMENTDATA = {};
+
+    /**
+     * 元素数组
+     * ArrayList内部其实是通过数组实现的
+     * 修饰符transient 表明这个字字段在序列化时被忽略不序列化。
+     * The array buffer into which the elements of the ArrayList are stored.
+     * The capacity of the ArrayList is the length of this array buffer. Any
+     * empty ArrayList with elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA
+     * will be expanded to DEFAULT_CAPACITY when the first element is added.
+     */
+    transient Object[] elementData; // non-private to simplify nested class access
+
+    /**
+     * 实际元素大小，默认为0
+     * The size of the ArrayList (the number of elements it contains).
+     *
+     * @serial
+     */
+    private int size;
+
+   /**
+    * 最大数组容量
+    * The maximum size of array to allocate.
+    * Some VMs reserve some header words in an array.
+    * Attempts to allocate larger arrays may result in
+    * OutOfMemoryError: Requested array size exceeds VM limit
+    */
+    private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
+*****************************************************************************************************************************************
+
+构造函数:
+--------------------------------------------------------------------------
+·无参构造函数：初始化一个长度为0的空数组
+/**
+* Constructs an empty list with an initial capacity of ten.
+*/
+public ArrayList() {
+     this.elementData = DEFAULTCAPACITY_EMPTY_ELEMENTDATA;
+}
+private static final Object[] DEFAULTCAPACITY_EMPTY_ELEMENTDATA = {};
+--------------------------------------------------------------------------
+·ArrayList(int) 构造函数：初始化一个指定长度的数组
+    /**
+     * Constructs an empty list with the specified initial capacity.
+     *
+     * @param  initialCapacity  the initial capacity of the list
+     * @throws IllegalArgumentException if the specified initial capacity
+     *         is negative
+     */
+    public ArrayList(int initialCapacity) {
+        if (initialCapacity > 0) {
+            this.elementData = new Object[initialCapacity];
+        } else if (initialCapacity == 0) {
+            this.elementData = EMPTY_ELEMENTDATA;
+        } else {
+            throw new IllegalArgumentException("Illegal Capacity: "+
+                                               initialCapacity);
+        }
+    }
+--------------------------------------------------------------------------
+·ArrayList(Collection<? extends E>)构造函数：初始化一个数组，并将参数集合中的元素复制到数组中
+
+    /**
+     * Constructs a list containing the elements of the specified
+     * collection, in the order they are returned by the collection's
+     * iterator.
+     *
+     * @param c the collection whose elements are to be placed into this list
+     * @throws NullPointerException if the specified collection is null
+     */
+    public ArrayList(Collection<? extends E> c) {
+        //将参数集合转化为数组，赋值到ArrayList内部存储属性上
+        elementData = c.toArray();
+        if ((size = elementData.length) != 0) {
+            // c.toArray might (incorrectly) not return Object[] (see 6260652)
+            //如果elementData数组类型不是Object[],则重新将elementData中元素转为Object复制到elementData中
+            if (elementData.getClass() != Object[].class)
+                elementData = Arrays.copyOf(elementData, size, Object[].class);
+        } else {
+            // replace with empty array.  为空则返回空数组
+            this.elementData = EMPTY_ELEMENTDATA;
+        }
+    }
+Collection类本身的toArray方法是返回Object[]类型数组，但是Java中如果子类如果继承Collection并重写了toArray方法，
+则返回的可能并不是Object[]类型数值，比如String[]等其他类型
+
+*****************************************************************************************************************************************
+ArrayList提供了这两个add操作方法，add(E e)直接向素组末尾添加元素，add(int index, E element)向指定index索引处添加元素
+add(E e)
+add(int index, E element)
+addAll(Collection<? extends E> c)
+addAll(int index, Collection<? extends E> c)
+
+--------------------------------------------------------------------------
+add(E e)
+    /**
+     * 直接向素组末尾添加元素
+     * Appends the specified element to the end of this list.
+     *
+     * @param e element to be appended to this list
+     * @return <tt>true</tt> (as specified by {@link Collection#add})
+     */
+    public boolean add(E e) {
+        //判断数组容量是否还可以添加，不够添加则扩充数组容量
+        ensureCapacityInternal(size + 1);  // Increments modCount!!
+        //将元素添加到数组末尾
+        elementData[size++] = e;
+        return true;
+    }
+
+    private void ensureCapacityInternal(int minCapacity) {
+        ensureExplicitCapacity(calculateCapacity(elementData, minCapacity));
+    }
+
+    private void ensureExplicitCapacity(int minCapacity) {
+        //用于迭代器
+        modCount++;
+
+        // overflow-conscious code
+        //期望的最小数组容量大于当前数组容量，则扩容
+        if (minCapacity - elementData.length > 0)
+            grow(minCapacity);
+    }
+
+    //计算期望最小的素组容量
+    private static int calculateCapacity(Object[] elementData, int minCapacity) {
+        // DEFAULTCAPACITY_EMPTY_ELEMENTDATA空数组
+        if (elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA) {
+            // DEFAULT_CAPACITY=10，也就是说如果此时最小返回一个长度为10的数组
+            return Math.max(DEFAULT_CAPACITY, minCapacity);
+        }
+        return minCapacity;
+    }
+
+    /**
+     * 扩容
+     * Increases the capacity to ensure that it can hold at least the
+     * number of elements specified by the minimum capacity argument.
+     *
+     * @param minCapacity the desired minimum capacity
+     */
+    private void grow(int minCapacity) {
+        // overflow-conscious code
+        // 当前数组容量
+        int oldCapacity = elementData.length;
+        //计算新素组容量，为当前数组容量的1.5倍
+        int newCapacity = oldCapacity + (oldCapacity >> 1);
+        //判断新数组容量与期望数组容量大小，取值大的一方
+        if (newCapacity - minCapacity < 0)
+            newCapacity = minCapacity;
+        // MAX_ARRAY_SIZE =Integer.MAX_VALUE – 8= 2147483639
+        //如果新数组容量大于2147483639，则使用扩展到最大Integer.MAX_VALUE
+        if (newCapacity - MAX_ARRAY_SIZE > 0)
+            newCapacity = hugeCapacity(minCapacity);
+        // minCapacity is usually close to size, so this is a win:
+        //将原数组中的元素拷贝到新素组中
+        elementData = Arrays.copyOf(elementData, newCapacity);
+    }
+add方法的逻辑是首选检查数组容量是否够用，如果容量不足，则进行扩容，
+扩容策略是如果原素组为空，则返回一个长度为10的数组，否则数组容量扩充到原素组的1.5倍，最终数组容量最大为Integer.Max_VALUE=2147483647
+--------------------------------------------------------------------------
+add(int index, E element)
+    /**
+     * 向指定索引处添加元素
+     * Inserts the specified element at the specified position in this
+     * list. Shifts the element currently at that position (if any) and
+     * any subsequent elements to the right (adds one to their indices).
+     *
+     * @param index index at which the specified element is to be inserted
+     * @param element element to be inserted
+     * @throws IndexOutOfBoundsException {@inheritDoc}
+     */
+    public void add(int index, E element) {
+        //检查指定索引合法性
+        rangeCheckForAdd(index);
+
+        ensureCapacityInternal(size + 1);  // Increments modCount!!
+        System.arraycopy(elementData, index, elementData, index + 1,
+                         size - index);
+        elementData[index] = element;
+        size++;
+    }
+add(int index, E element)内部多了一个验证指定索引合法性逻辑，其他与add(E element)实现逻辑基本一致。
+--------------------------------------------------------------------------
+addAll(Collection<? extends E> c)
+    /**
+     * 添加集合
+     * Appends all of the elements in the specified collection to the end of
+     * this list, in the order that they are returned by the
+     * specified collection's Iterator.  The behavior of this operation is
+     * undefined if the specified collection is modified while the operation
+     * is in progress.  (This implies that the behavior of this call is
+     * undefined if the specified collection is this list, and this
+     * list is nonempty.)
+     *
+     * @param c collection containing elements to be added to this list
+     * @return <tt>true</tt> if this list changed as a result of the call
+     * @throws NullPointerException if the specified collection is null
+     */
+    public boolean addAll(Collection<? extends E> c) {
+        Object[] a = c.toArray();
+        int numNew = a.length;
+        //检查是否需要扩容
+        ensureCapacityInternal(size + numNew);  // Increments modCount
+        System.arraycopy(a, 0, elementData, size, numNew);
+        size += numNew;
+        return numNew != 0;
+    }
+
+addAll(int index, Collection<? extends E> c)
+    /**
+     * Inserts all of the elements in the specified collection into this
+     * list, starting at the specified position.  Shifts the element
+     * currently at that position (if any) and any subsequent elements to
+     * the right (increases their indices).  The new elements will appear
+     * in the list in the order that they are returned by the
+     * specified collection's iterator.
+     *
+     * @param index index at which to insert the first element from the
+     *              specified collection
+     * @param c collection containing elements to be added to this list
+     * @return <tt>true</tt> if this list changed as a result of the call
+     * @throws IndexOutOfBoundsException {@inheritDoc}
+     * @throws NullPointerException if the specified collection is null
+     */
+    public boolean addAll(int index, Collection<? extends E> c) {
+        rangeCheckForAdd(index);
+
+        Object[] a = c.toArray();
+        int numNew = a.length;
+        ensureCapacityInternal(size + numNew);  // Increments modCount
+
+        int numMoved = size - index;
+        if (numMoved > 0)
+            System.arraycopy(elementData, index, elementData, index + numNew,
+                             numMoved);
+
+        System.arraycopy(a, 0, elementData, index, numNew);
+        size += numNew;
+        return numNew != 0;
+    }
+
+addAll方法实现逻辑与add方法基本相同
+
+*****************************************************************************************************************************************
+get(int index)
+get方法返回此列表中指定位置的元素，内部实现首先判断一下索引是否越界（居然没有判断小于0，实际上小于0时，数组读取也会抛异常），
+然后取出对应索引位置处的元素，另外由于ArrayList内部是用Object[]实现存储的，get(int index)返回泛型E，
+实际上elementData(index)内部实现将Object转为E
+
+    public E get(int index) {
+        //验证索引是否越界
+        rangeCheck(index);
+
+        return elementData(index);
+    }
+
+    /**
+     * Checks if the given index is in range.  If not, throws an appropriate
+     * runtime exception.  This method does *not* check if the index is
+     * negative: It is always used immediately prior to an array access,
+     * which throws an ArrayIndexOutOfBoundsException if index is negative.
+     */
+    private void rangeCheck(int index) {
+        if (index >= size)
+            throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
+    }
+
+*****************************************************************************************************************************************
+
+
+
+
+
