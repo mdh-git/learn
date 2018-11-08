@@ -24,7 +24,7 @@ public class BitMapTest {
     public static Set<Integer> bitMap(int[] arr) {
         int j = 0;
         //用来把重复的数返回，存在Set里，这样避免返回重复的数。
-        Set<Integer> output = new HashSet<>();
+        Set<Integer> output = new HashSet<Integer>();
         BitSet bitSet = new BitSet(Integer.MAX_VALUE);
         int i = 0;
         while (i < arr.length) {

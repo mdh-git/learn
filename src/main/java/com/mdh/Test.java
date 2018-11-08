@@ -44,6 +44,9 @@ public class Test {
         if(str4.indexOf("进口") != -1 ) {
             System.out.println("进口 啊哈哈");
         }
+
+        String len = "测试被保险人手机号002";
+        System.out.println(len.length());
     }
 
 

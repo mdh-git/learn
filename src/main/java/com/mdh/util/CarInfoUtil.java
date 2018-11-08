@@ -33,7 +33,7 @@ public class CarInfoUtil {
         CarInfo carInfo13 = new CarInfo("AZHZG06CTP18F024010I","", new Byte("0"),"QZHZG06Y1418F031012W","豫P576L2",2);
 
         CarInfo carInfo14 = new CarInfo("AZHZG06Y1418F0277446","AZHZZ31Y1418B044438f", new Byte("1"),"QZHZG06Y1418F035995J","豫P576L3",1);
-        List<CarInfo> list = new ArrayList<>();
+        List<CarInfo> list = new ArrayList<CarInfo>();
         list.add(carInfo1);
         list.add(carInfo2);
         list.add(carInfo3);
@@ -50,13 +50,13 @@ public class CarInfoUtil {
         list.add(carInfo14);
         System.out.println(list.size());
         //List<String> collect = list.stream().map(CarInfo::getCarNumber).distinct().collect(Collectors.toList());
-        Set<String> noSet = new HashSet<>();
+        Set<String> noSet = new HashSet<String>();
         for(CarInfo carInfo : list) {
             noSet.add(carInfo.getCarNumber());
         }
         Map<String, List<CarInfo>> map = list.stream().collect(Collectors.groupingBy(CarInfo::getCarNumber));
 
-        List<CarInfo> result = new ArrayList<>();
+        List<CarInfo> result = new ArrayList<CarInfo>();
 
         CarTest carTest = new CarTest();
         carTest.setName("");

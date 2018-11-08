@@ -114,4 +114,27 @@ public class LinkList {
     public boolean isEmpty(){
         return (first == null);
     }
+
+    public static void main(String[] args) throws Exception {
+
+        LinkList linkList = new LinkList();
+        Link linkOne = new Link(1,"一");
+        Link linkTwo = new Link(2,"二");
+        Link linkThree = new Link(3,"三");
+        Link linkFour = new Link(4,"亖");
+        linkList.inserFirst(linkOne);
+        linkList.inserFirst(linkThree);
+        linkList.inserFirst(linkFour);
+        linkList.inserFirst(linkTwo);
+        linkList.displayList();
+        System.out.println("1--------------------------------");
+        linkList.find(4);
+        System.out.println("2--------------------------------");
+        linkList.deleteFirst();
+        linkList.displayList();
+        System.out.println("3--------------------------------");
+        linkList.delete(3);
+        linkList.displayList();
+        System.out.println("4--------------------------------");
+    }
 }
