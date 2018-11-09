@@ -2,6 +2,7 @@ package com.mdh.datastructure.arraylist;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +30,23 @@ public class ArrayListDemo {
         List<String> listColl = new ArrayList<>(collection);
         listColl.add("四");
         System.out.println("ArrayList(Collection<? extends E>)构造函数: " + listColl);
+
+        System.out.println();
+
+        Iterator<String> listIter = list.iterator();
+        while (listIter.hasNext()) {
+            //array.add(4);  add() 和remove()会导致modCount发生变化,从而导致迭代过程中抛出异常
+            String value = listIter.next();
+            //使用迭代器提供的remove()方法避免抛异常，原因：迭代器的remove方法在删除元素之后对将ArrayList的modCount覆盖了迭代器类的expectedModCount
+            //listIter.remove();
+            System.out.println("迭代器iterator遍历: " + value);
+        }
+        for (String iter:list) {
+            //item.add()和item.remove()都将报错
+            System.out.println("forEach遍历: " + iter);
+        }
+
+
 
     }
 }
