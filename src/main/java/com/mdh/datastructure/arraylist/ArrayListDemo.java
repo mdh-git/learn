@@ -46,7 +46,14 @@ public class ArrayListDemo {
             System.out.println("forEach遍历: " + iter);
         }
 
+        List<Object> listObj = new ArrayList<>();
+        listObj.add(1);
+        listObj.add("一");
+        System.out.println(listObj);
 
+        Object[] objects = collection.toArray();
+        System.out.println(Object[].class);
+        System.out.println(objects.getClass());
 
     }
 }
