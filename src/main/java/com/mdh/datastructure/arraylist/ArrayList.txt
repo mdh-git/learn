@@ -1,4 +1,9 @@
 ArrayList其实就是一个动态的Array，并且提供了一些便携的操作方法而已。
+JDK中提供，初始容量为10，扩容为当前的一半(new  =  old + (old >> 1)),在mathDemo中有具体的计算过程
+即是: 初始          10
+      第一次扩容:   15
+      第二次扩容:   22
+      第三次扩容:   33
 ArrayList是一个支持泛型的，底层通过数组实现的一个可以存任意类型的数据结构，
 源码中的定义如下:
 public class ArrayList<E> extends AbstractList<E>
