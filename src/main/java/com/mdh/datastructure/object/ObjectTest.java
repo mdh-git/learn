@@ -9,6 +9,9 @@ public class ObjectTest {
 
     public static void main(String[] args) {
 
-        Object object = new Object();
+        Object object = "ABC";
+        int hashCode = object.hashCode();
+        System.out.println(hashCode);
+        Float.isNaN(123);
     }
 }
