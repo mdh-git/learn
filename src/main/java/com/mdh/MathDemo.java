@@ -9,18 +9,14 @@ public class MathDemo {
 
     public static void main(String[] args) {
 
+        String code = "0f01";
+        if(code.contains("0")){
+            System.out.println("包含0");
+            code = code.replaceAll("0", "o");
+            System.out.println(code);
+        } else {
+            System.out.println("不含0");
+        }
     }
 
-    public static void print(int n) {
-
-        int[][] array = {{1,2,3},{1,2,3,4},{1,2}};
-
-
-
-
-    }
-
-    private static void pandan(int i, int j){
-
-    }
 }
