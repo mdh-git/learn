@@ -1,0 +1,63 @@
+集合类型：无序、不可重复
+列表类型：有序、可重复
+
+
+增加/删除元素 语法：sadd key member [member…]
+> sadd set a b c
+(integer) 3
+> sadd set a
+(integer) 0
+语法：srem key member [member…]
+127.0.0.1:6379> srem set c
+(integer) 1
+
+获得集合中的所有元素 语法：smembers key
+> smembers set
+1) "b"
+2) "a"
+
+判断元素是否在集合中 语法：sismember key member
+> sismember set a
+(integer) 1
+> sismember set h
+(integer) 0
+
+运算命令
+
+集合的差集运算 A-B 属于 A 并且 不属于 B 的元素构成的集合
+语法：sdiff key [key…]
+> sadd setA 1 2 3
+(integer) 3
+> sadd setB 2 3 4
+(integer) 3
+> sdiff setA setB
+1) "1"
+> sdiff setB setA
+1) "4"
+
+集合的交集运算 属于A且属于B的元素构成的集合
+语法：sinter key [key…]
+> sinter setA setB
+1) "2"
+2) "3"
+
+集合的并集运算 属于 A 或者 属于 B 的元素构成的集合
+语法：sunion key [key…]
+> sunion setA setB
+1) "1"
+2) "2"
+3) "3"
+4) "4"
+
+获得集合中元素的个数 语法：scard key
+> smembers setA
+1) "1"
+2) "2"
+3) "3"
+> scard setA
+(integer) 3
+
+从集合中弹出一个元素 注意:由于集合是无序的，所有spop命令会从集合中随机选择一个元素弹出。
+语法：spop key
+> spop setA
+"2"

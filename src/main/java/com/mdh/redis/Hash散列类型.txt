@@ -1,0 +1,69 @@
+hash叫散列类型，它提供了字段和字段值的映射。字段值只能是字符串类型，不支持散列类型、集合类型等其它类型。
+
+命令
+赋值 HSET命令不区分插入和更新操作，当执行插入操作时HSET命令返回1，当执行更新操作时返回0。
+
+·一次只设置一个字段值 语法: hset key field value
+> hset user username zhangsan
+(integer) 1
+
+·一次设置多个字段值 语法：hmset key field value [field value…]
+> hmset user age 20 username lisi
+OK
+
+·当字段不存在时赋值，类似hset,区别在于如果字段存在，该命令不执行任何操作。
+语法：hsetnx key field value
+> hsetnx user age 30
+(integer) 0
+
+取值
+·一次获取一个字段值 语法：hget key field
+> hget user username
+"lisi"
+
+·一次可以获取多个字段值 语法：hmget key field [field…]
+> hmget user age username
+1) "20"
+2) "lisi"
+
+·获取所有字段值 语法：hgetall key
+> hgetall user
+1) "username"
+2) "lisi"
+3) "age"
+4) "20"
+
+删除字段 可以删除一个或多个字段，返回值是被删除的字段的个数。 语法：hdel key field [field…]
+> hdel user age
+(integer) 1
+> hdel user age username
+(integer) 1
+
+增加数字 语法：hincrby key field increment
+> hincrby user age 2
+(integer) 2
+
+判断字段是否存在 语法：hexists key field
+> hexists user age
+(integer) 1
+
+只获取字段名或字段值 语法： hkeys key hvals key
+> hkeys user
+1) "age"
+
+获取字段数量 语法：hlen key
+> hlen user
+(integer) 1
+
+应用 存储商品信息
+> hlen user
+(integer) 1
+
+获取商品信息
+> hgetall items:1001
+1) "id"
+2) "3"
+3) "name"
+4) "apple"
+5) "price"
+6) "5.00"

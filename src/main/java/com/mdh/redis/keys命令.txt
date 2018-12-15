@@ -1,0 +1,56 @@
+keys 返回满足给定pattern 的所有key
+> keys mylist*
+"mylist"
+"mylist5"
+"mylist6"
+"mylist7"
+"mylist8"
+
+exists 确认一个key 是否存在
+数据库中不存在HongWan 这个key，但是age 这个key 是存在的
+> exists HongWan
+(integer) 0
+> exists age
+(integer) 1
+
+del 删除一个key
+> del age
+(integer) 1
+> exists age
+(integer) 0
+
+rename 重命名key
+> keys *
+"age"
+> rename age age_new
+OK
+> keys *
+"age_new"
+
+type 返回值的类型
+这个方法可以非常简单的判断出值的类型
+> type addr
+string
+> type myzset2
+zset
+> type mylist
+list
+
+
+设置key的生存时间
+Redis在实际使用过程中更多的用作缓存，然而缓存的数据一般都是需要设置生存时间的，即：到期后数据销毁。
+EXPIRE key seconds  设置key的生存时间（单位：秒）key在多少秒后会自动删除
+TTL key  查看key剩余的生存时间
+PERSIST key  清除生存时间
+PEXPIRE key milliseconds  生存时间设置单位为：毫秒
+
+> set test 1        设置test的值为1
+OK
+> EXPIRE test 5    设置test的生存时间为5秒
+(integer) 1
+> TTL test         查看test的生于生成时间还有1秒删除
+(integer) 1
+> TTL test
+(integer) -2
+> get test            获取test的值，已经删除
+(nil)

@@ -1,0 +1,90 @@
+Sortedset 又叫 zset Sortedset 是有序集合，可排序的，但是唯一。
+Sortedset 和 set 的不同之处，会给 set 中元素添加一个分数，然后通过这个分数进行排序。
+
+命令：
+增加元素
+向有序集合中加入一个元素和该元素的分数，如果该元素已经存在则会用新的分数替换原有的分数。
+返回值是新加入到集合中的元素个数，不包含之前已经存在的元素。
+语法：zadd key score member [score member…]
+> zadd scoreboard 80 zhangsan 89 lisi 94 wangwu
+(integer) 3
+> zadd scoreboard 97 lisi
+(integer) 0
+
+获取元素分数
+语法：zscore key member
+> zscore scoreboard lisi
+"97"
+
+删除元素
+移除有序集key中的一个或多个成员，不存在的成员将被忽略。 当key存在但不是有序集类型时，返回一个错误。
+语法：zrem key member [member…]
+> zrem scoreboard lisi
+(integer) 1
+
+获得排名在某个范围的元素列表
+·按照元素分数从小到大的顺序返回索引从start到stop之间的所有元素（包含两端的元素）
+  语法：zrange key start stop [withscores]
+> zrange scoreboard 0 2
+1) "zhangsan"
+2) "wangwu"
+·按照元素分数从大到小的顺序返回索引从start到stop之间的所有元素（包含两端的元素）
+  语法：zrevrange key start stop [withscores]
+> zrevrange scoreboard 0 2
+1) "wangwu"
+2) "zhangsan"
+
+如果需要获得元素的分数可以在命令末尾加上 withscores 参数
+> zrevrange scoreboard 0 2 withscores
+"wangwu"
+"94"
+"zhangsan"
+"80"
+
+获取元素的排名
+·从小到大 语法：zrank key member
+> zrank scoreboard zhangsan
+(integer) 0
+·从大到小 语法：zrevrank key member
+> zrevrank scoreboard zhangsan
+(integer) 1
+
+获得指定分数范围的元素
+语法：zrangebyscore key min max [withscores][limit offset count]
+> zrangebyscore scoreboard 90 97 withscores
+1) "wangwu"
+2) "94"
+3) "lisi"
+4) "97"
+> zrangebyscore scoreboard 70 100 limit 1 2
+1) "wangwu"
+2) "lisi"
+
+增加某个元素的分数
+返回值是更改后的分数
+语法：zincrby key increment member
+> zincrby scoreboard 4 lisi
+"101"
+
+获得集合中元素的数量
+> zcard scoreboard
+(integer) 3
+
+获得指定分数范围内的元素个数
+语法：zcount key min max
+> zcount scoreboard 80 90
+(integer) 1
+
+按照排名范围删除元素
+语法：zremrangebyrank key start stop
+> zremrangebyrank scoreboard 0 1
+(integer) 2
+> zrange scoreboard 0 -1
+1) "wangwu"
+
+按照分数范围删除元素
+语法：zremrangebyscore key min max
+> zadd scoreboard 84 zhangsan
+(integer) 1
+> zremrangebyscore scoreboard 80 100
+(integer) 1
