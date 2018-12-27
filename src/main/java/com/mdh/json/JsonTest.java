@@ -20,4 +20,19 @@ package com.mdh.json;
  */
 public class JsonTest {
 
+    public static void main(String[] args) {
+        String json = "{\n" +
+                "  \"is_done\": true,\n" +
+                "  \"request\": {\n" +
+                "    \"request_id\": \"7kegg3s2xqrm9l63\",\n" +
+                "    \"prov_code\": \"410000\",\n" +
+                "    \"city_code\": \"410100\",\n" +
+                "    \"vehicle_nature\": \"211\",\n" +
+                "    \"biz_start_date\": null,\n" +
+                "    \"force_start_date\": \"2019-02-13\",\n" +
+                "    \"biz_start_time\": null,\n" +
+                "    \"force_start_time\": \"2019-02-13 00:00:00\"\n" +
+                "  }\n" +
+                "}";
+    }
 }
