@@ -1,0 +1,21 @@
+public class FutureTask<V> implements RunnableFuture<V>
+FutureTask类实现了RunnableFuture接口,RunnableFuture接口的实现：
+public interface RunnableFuture<V> extends Runnable, Future<V> {
+    void run();
+}
+RunnableFuture继承了Runnable接口和Future接口，而FutureTask实现了RunnableFuture接口。
+所以它既可以作为Runnable被线程执行，又可以作为Future得到Callable的返回值。
+
+FutureTask提供了2个构造器：
+public FutureTask(Callable<V> callable) {
+        if (callable == null)
+            throw new NullPointerException();
+        this.callable = callable;
+        this.state = NEW;       // ensure visibility of callable
+    }
+
+public FutureTask(Runnable runnable, V result) {
+        this.callable = Executors.callable(runnable, result);
+        this.state = NEW;       // ensure visibility of callable
+    }
+FutureTask是Future接口的一个唯一实现类。

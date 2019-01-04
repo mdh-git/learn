@@ -1,0 +1,16 @@
+Callable位于java.util.concurrent包下，它也是一个接口，在它里面也只声明了一个方法，只不过这个方法叫做call():
+public interface Callable<V> {
+    /**
+     * Computes a result, or throws an exception if unable to do so.
+     *
+     * @return computed result
+     * @throws Exception if unable to compute a result
+     */
+    V call() throws Exception;
+}
+
+这是一个泛型接口，call()函数返回的类型就是传递进来的V类型。
+一般情况下是配合ExecutorService来使用的，在ExecutorService接口中声明了若干个submit方法的重载版本：
+<T> Future<T> submit(Callable<T> task);
+<T> Future<T> submit(Runnable task, T result);
+Future<?> submit(Runnable task);

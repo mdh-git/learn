@@ -29,5 +29,6 @@ public class FutureTest {
         System.out.println("所有任务执行完毕，a = " + a);
         System.out.println("所有任务执行完毕，b = " + b);
 
+
     }
 }
