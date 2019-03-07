@@ -1,3 +1,6 @@
+String类型是二进制安全的
+字符串最多512M
+
 赋值  set key value
 > set test 123
 OK
