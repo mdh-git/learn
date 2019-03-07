@@ -19,11 +19,13 @@ OK
 
 
 设置获取多个键值 mset key value [key value...] mget key[key...]
+对应的 mget  k1 k2 k3 查看多个key
 >mset k1 v1 k2 v2 k3 v3
 OK
 >mget k1 k2
 1) "v1"
 2) "v2"
+
 
 
 删除 del key
@@ -74,6 +76,25 @@ OK
 语法: strlen key
 > strlen str
 (integer) 10
+
+
+getrange key1 0 3
+获取key字符串的第0位到第3位
+
+setrange key 0 XXX
+从第0位修改key字符串的值
+
+
+setex key 10 v4
+设置key的值为v4，并设置存活时间为10秒
+
+
+setnx（set if not exist） key v11
+当key的值不存在的时候，才设置值v11
+
+msetnx k1 v1 k2 v2
+当其中有一个k存在保存就失败，否则成功
+
 
 应用:自增主键 商品编号、订单号采用string的递增数字特性生成
 

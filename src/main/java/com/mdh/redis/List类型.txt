@@ -100,3 +100,6 @@ OK
 1) "2"
 2) "1"
 3) "9"
+
+lren key 删除N个value
+lren key 2 v1 删除两个v1
