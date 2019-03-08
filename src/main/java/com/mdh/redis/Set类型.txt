@@ -61,3 +61,7 @@
 语法：spop key
 > spop setA
 "2"
+
+srandmember key  整数(随机的抽取几个数)
+
+smove key1 key2 将key1里某个值赋值给key2
