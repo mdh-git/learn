@@ -1,4 +1,4 @@
-package com.mdh.basis.Keyword;
+package com.mdh.basis.keyword;
 
 /**
  * @Author: madonghao
