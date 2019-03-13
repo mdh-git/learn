@@ -5,7 +5,8 @@ import java.util.List;
 
 /**
  *
- * 简单的堆内存溢出的情况
+ * 堆内存溢出的情况，有dump文件
+ * java.lang.OutOfMemoryError: Java heap space
  * 设置VM参数  -XX:+HeapDumpOnOutOfMemoryError -Xmx8m -Xms8m
  * @Author: madonghao
  * @Date: 2019/3/13 10:05
