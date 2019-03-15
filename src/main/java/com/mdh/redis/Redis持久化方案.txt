@@ -4,9 +4,9 @@ Redis会单独创建（fork）一个子进程来进行持久化，会先将数�
 fork的作用是复制一个与当前进程一样的进程，新进程的所有数据（变量、环境变量、程序计数器）数值都和远进程一致，但是一个全新的线程，并作为原进程的子线程。
 (1.1) 设置持久化快照的条件
 在 redis.conf 中修改持久化快照的条件：
-save 900 1
-save 300 10
-save 60 10000
+save 900 1              900秒（15分钟）内有1个更改   （推荐使用）
+save 300 10             300秒（5分钟） 内有10个更改
+save 60 10000           60秒内有10000个更改
 (1.2) 持久化文件的存储目录
 在 redis.conf 中可以指定持久化文件的存储目录
 dbfilename dump.rdb
@@ -24,3 +24,8 @@ Redis 默认是不使用该方式持久化的。Aof 方式的持久化，是操�
 ·Aof文件存储的目录和rdb方式的一样。 Aof文件存储的名称
  appendfilename "appendloy.aof"
  在使用aof和rdb方式时，如果redis重启，则数据从aof文件加载。
+ truncated AOF 修改AOF文件里面不正确的语法
+ 修复：redis-check-aof --fix 进行修复
+ appendfsync everysec  默认设置,异步操作,每秒记录
+
+ AOF触发重写机制： Redis会记录上次重写时的AOF大小，默认配置是当AOF文件大小是上次rewrite后大小的一倍且文件大于64M触发
