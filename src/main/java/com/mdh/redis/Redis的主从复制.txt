@@ -38,3 +38,16 @@
    ·第五步：启动从机 ./redis-server redis.conf
    ·第六步：启动6380的客户端 ./redis-cli -p 6380
    注意:（主机一旦发生增删改操作，那么从机会将数据同步到从机中 从机不能执行写操作）
+
+
+info replication 查看当前redis的信息
+slavof host port  设置当前slave对应的master
+复制延迟
+
+方法:
+(1) 一主二仆
+(1) 薪火相传
+(1) 反客为主
+(4) 哨兵模式（投票选举）
+    最常用，添加(touch)    sentinel.conf
+    编辑(vi)  sentinel.conf  加入  sentinel monitor (自定义的名字)  master的host  port  1(投票最多的)
