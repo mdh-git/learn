@@ -8,8 +8,33 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+
 /**
  *
+ * public void execute(Runnable command) {
+ *         if (command == null)
+ *             throw new NullPointerException();
+ *
+ * 小于核心线程数
+ *         int c = ctl.get();
+ *         if (workerCountOf(c) < corePoolSize) {
+ *             if (addWorker(command, true))
+ *                 return;
+ *             c = ctl.get();
+ *         }
+ * 放入队列
+ *         if (isRunning(c) && workQueue.offer(command)) {
+ *             int recheck = ctl.get();
+ *             if (! isRunning(recheck) && remove(command))
+ *                 reject(command);
+ *             else if (workerCountOf(recheck) == 0)
+ *                 addWorker(null, false);
+ *         }
+ * 如果直接调用addWorker方法
+ *
+ *         else if (!addWorker(command, false))
+ *             reject(command);
+ *     }
  * @author madonghao
  * @date 2018/11/5
  */
