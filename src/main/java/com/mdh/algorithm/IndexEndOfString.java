@@ -23,7 +23,5 @@ public class IndexEndOfString {
         while (m.find()) {
             System.out.println(m.group());
         }
-
-
     }
 }
