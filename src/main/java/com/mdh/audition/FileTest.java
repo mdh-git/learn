@@ -120,7 +120,7 @@ public class FileTest {
     @Test
     public void mapTest(){
         HashMap<String, Integer> map = new HashMap();
-        List<String> list = Arrays.asList("1", "2", "1", "2", "1", "2", "3");
+        List<String> list = Arrays.asList("1", "2", "1", "2", "1", "2", "3", "1");
         list.stream().forEach(
                 v ->{
                     Object o = map.get(v);
@@ -131,7 +131,6 @@ public class FileTest {
                     }
                 }
         );
-
        Iterator iter = map.entrySet().iterator();
        while (iter.hasNext()){
            Map.Entry next = (Map.Entry) iter.next();
