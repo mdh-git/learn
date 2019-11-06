@@ -1,5 +1,6 @@
 package com.mdh.demo;
 
+
 /**
  *
  * @author madonghao
@@ -8,15 +9,24 @@ package com.mdh.demo;
 public class Test {
 
     public static void main(String[] args) {
-        String str = "WWFssFFs  ss";
-        int count = 0;
-        for(int j = 0 ; j < str.length(); j ++) {
-            char c = str.charAt(j);
-            if(Character.isLowerCase(c)) {
-                count ++;
-            }
+//        String str = "WWFssFFs  ss";
+//        int count = 0;
+//        for(int j = 0 ; j < str.length(); j ++) {
+//            char c = str.charAt(j);
+//            if(Character.isLowerCase(c)) {
+//                count ++;
+//            }
+//        }
+//        System.out.println(count);
+
+        Integer aNull = new Integer("");
+        if(aNull != null && !aNull.equals("")){
+            System.out.println(aNull);
+        } else {
+            System.out.println("错误");
         }
-        System.out.println(count);
+
+
     }
 
 }
