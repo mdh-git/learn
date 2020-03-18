@@ -124,4 +124,12 @@ public class Demo {
         System.out.println("---原来的List2---");
         list2.parallelStream().forEachOrdered(System.out :: println);
     }
+
+    @Test
+    public void test05(){
+
+        Map<Integer, String> map = new HashMap<>(3);
+        System.out.println(map.size());
+        System.out.println(map);
+    }
 }
