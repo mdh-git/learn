@@ -211,13 +211,13 @@ public class SkipList {
         skipList.insert(44,"小亮");
         skipList.insert(44,"小亮");
         skipList.insert(11,"小贾");
-        for (int i = 0; i < 500; i++) {
-            int value = (int) (random.nextDouble() * 1000);
-            skipList.insert(value, UUID.randomUUID().toString());
-            System.out.println(value);
-        }
-        Node p = skipList.search(22);
-        skipList.delete(44);
+//        for (int i = 0; i < 500; i++) {
+//            int value = (int) (random.nextDouble() * 1000);
+//            skipList.insert(value, UUID.randomUUID().toString());
+//            System.out.println(value);
+//        }
+        Node p = skipList.search(33);
+        //skipList.delete(44);
         if (p != null) {
             System.out.println(p.value);
         } else {
