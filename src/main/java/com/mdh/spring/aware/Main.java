@@ -9,6 +9,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
  */
 public class Main {
     public static void main(String[] args) {
+        System.out.println(1);
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AwareConfig.class);
         AwareService awareService = context.getBean(AwareService.class);
         awareService.outputResult();
