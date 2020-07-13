@@ -33,7 +33,7 @@ public class AwareService implements BeanNameAware,ResourceLoaderAware{//实现B
 
     public void outputResult(){
         System.out.println("Bean的名称:" + beanName);
-        Resource resource = loader.getResource("classpath:com/mdh/spring/spring.txt");
+        Resource resource = loader.getResource("classpath:com.mdh.spring/spring.txt");
         try {
             System.out.println("ResourceLoader加载的文件内容为:" + IOUtils.toString(resource.getInputStream()));
         } catch (IOException e) {
