@@ -1,6 +1,7 @@
 package com.mdh.streams;
 
 
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.junit.Test;
@@ -131,5 +132,30 @@ public class Demo {
         Map<Integer, String> map = new HashMap<>(3);
         System.out.println(map.size());
         System.out.println(map);
+    }
+
+    @Test
+    public void test06(){
+
+        List<Fruit> list = new ArrayList<>();
+        list.add(new Fruit(3, "苹果"));
+        list.add(new Fruit(1, "香蕉"));
+        list.add(new Fruit(4, "梨"));
+        list.add(new Fruit(2, "芒果"));
+        Map<Integer, Fruit> collect = list.stream().collect(Collectors.toMap(Fruit::getId, e -> e));
+        System.out.println(JSON.toJSONString(collect));
+    }
+
+    @Test
+    public void test07(){
+
+        //Map<String, String> map = Maps.newHashMap();
+        Map<String, String> map = Maps.newLinkedHashMap();
+        map.put("a","a");
+        map.put("c","c");
+        map.put("b","b");
+        map.forEach((k, v) -> {
+            System.out.println(k + ":" + v);
+        });
     }
 }
