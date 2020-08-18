@@ -1,4 +1,4 @@
-package com.mdh.interview;
+package com.mdh.interview.code;
 
 /**
  * 在单线程的情况下没有问题

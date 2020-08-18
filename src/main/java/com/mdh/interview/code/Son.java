@@ -1,4 +1,4 @@
-package com.mdh.interview;
+package com.mdh.interview.code;
 
 /**
  * 子类的实例方法:
@@ -25,7 +25,7 @@ package com.mdh.interview;
  *          非静态方法默认的调用对象是this
  *          this对象在构造器或者说<init>方法中就是正在创建的对象
  */
-public class Son extends Father{
+public class Son extends Father {
     private int i = test();
     private static int j = method();
 

@@ -1,4 +1,4 @@
-package com.mdh.interview;
+package com.mdh.interview.code;
 
 /**
  * 类的初始化过程

@@ -1,4 +1,4 @@
-package com.mdh.interview;
+package com.mdh.interview.code;
 
 /**
  * 单例设计模式:

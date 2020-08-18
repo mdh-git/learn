@@ -1,4 +1,4 @@
-package com.mdh.interview;
+package com.mdh.interview.code;
 
 /**
  * 单例对象 占用资源多，需要延时加载，静态内部类 好于 懒汉式

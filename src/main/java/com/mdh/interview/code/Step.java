@@ -1,4 +1,4 @@
-package com.mdh.interview;
+package com.mdh.interview.code;
 
 /**
  * 有n步台阶,一次只能上1步或2步,共有多少种走法?
