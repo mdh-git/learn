@@ -41,3 +41,45 @@ JMM关于同步的规定：
                 主内存
    共享变量      共享变量      共享变量
 ~~~
+
+## a++的字节码文件
+~~~
+先编译java文件成class文件，在执行javap命令
+
+字节码文档： https://www.jianshu.com/p/247e2475fc3a
+
+"C:\Program Files\Java\jdk1.8.0_101\bin\javap.exe" -c com.mdh.interview.subject.volatileCode.Add
+Compiled from "Add.java"
+public class com.mdh.interview.subject.volatileCode.Add {
+  volatile int num;
+
+  public com.mdh.interview.subject.volatileCode.Add();
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+       4: aload_0
+       5: iconst_0
+       6: putfield      #2                  // Field num:I
+       9: return
+
+  public void add();
+    Code:
+       0: aload_0
+       1: dup
+       2: getfield      #2                  // Field num:I
+       5: iconst_1
+       6: iadd
+       7: putfield      #2                  // Field num:I
+      10: return
+
+  public static void main(java.lang.String[]);
+    Code:
+       0: getstatic     #3                  // Field java/lang/System.out:Ljava/io/PrintStream;
+       3: iconst_1
+       4: invokevirtual #4                  // Method java/io/PrintStream.println:(I)V
+       7: return
+}
+
+Process finished with exit code 0
+
+~~~
