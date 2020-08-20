@@ -14,6 +14,7 @@ public class DemoTest {
         // 0011   3
         // 1001   9
         // 1011  11
+
         System.out.println(3|9);
     }
 }
