@@ -150,12 +150,47 @@ public class Demo {
     public void test07(){
 
         //Map<String, String> map = Maps.newHashMap();
-        Map<String, String> map = Maps.newLinkedHashMap();
-        map.put("a","a");
-        map.put("c","c");
-        map.put("b","b");
-        map.forEach((k, v) -> {
-            System.out.println(k + ":" + v);
-        });
+//        Map<String, String> map = Maps.newLinkedHashMap();
+//        map.put("a","a");
+//        map.put("c","c");
+//        map.put("b","b");
+//        map.forEach((k, v) -> {
+//            System.out.println(k + ":" + v);
+//        });
+
+//        Fruit fruit = new Fruit(3, "");
+//        List<Fruit> list = new ArrayList<>();
+//        list.add(fruit);
+//        boolean b = list.stream().anyMatch(v -> v.getName().equals("123"));
+//        System.out.println(map.get(""));
+
+//        for (int i = 0; i < 10; i++) {
+//            for (int j = 0; j < 10; j++) {
+//                if(j == 5){
+//                    System.out.println(i + "----" +j);
+//                    break;
+//                }
+//            }
+//            System.out.println(i);
+//        }
+//        Map<String, String> map = Maps.newLinkedHashMap();
+//        System.out.println(map.get("123"));
+
+
+//        for (int i = 0; i < 10000000; i++) {
+//            System.out.println(i);
+//        }
+
+
+//        String value = "[192.168.128.33]";
+//        System.out.println(value.substring(1, value.length() -1));
+
+
+        List<Integer> list = new ArrayList<>();
+        List<Integer> collect = Arrays.asList("1,2,3".split(",")).stream().map(Integer::valueOf).collect(Collectors.toList());
+        List<Integer> collect1 = Arrays.asList("1,5,6".split(",")).stream().map(Integer::valueOf).collect(Collectors.toList());
+        list.addAll(collect);
+        list.addAll(collect1);
+        System.out.println(list);
     }
 }
