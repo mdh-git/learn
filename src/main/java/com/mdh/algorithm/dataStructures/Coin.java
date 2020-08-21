@@ -1,7 +1,5 @@
 package com.mdh.algorithm.dataStructures;
 
-import org.junit.Test;
-
 import java.util.Scanner;
 
 /**

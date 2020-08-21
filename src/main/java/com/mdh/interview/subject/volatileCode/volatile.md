@@ -48,10 +48,12 @@ JMM关于同步的规定：
 
 字节码文档： https://www.jianshu.com/p/247e2475fc3a
 
-"C:\Program Files\Java\jdk1.8.0_101\bin\javap.exe" -c com.mdh.interview.subject.volatileCode.Add
+"C:\Program Files\Java\jdk1.8.0_211\bin\javap.exe" -c com.mdh.interview.subject.volatileCode.Add
 Compiled from "Add.java"
 public class com.mdh.interview.subject.volatileCode.Add {
   volatile int num;
+
+  java.util.concurrent.atomic.AtomicInteger atomicInteger;
 
   public com.mdh.interview.subject.volatileCode.Add();
     Code:
@@ -60,7 +62,19 @@ public class com.mdh.interview.subject.volatileCode.Add {
        4: aload_0
        5: iconst_0
        6: putfield      #2                  // Field num:I
-       9: return
+       9: aload_0
+      10: new           #3                  // class java/util/concurrent/atomic/AtomicInteger
+      13: dup
+      14: invokespecial #4                  // Method java/util/concurrent/atomic/AtomicInteger."<init>":()V
+      17: putfield      #5                  // Field atomicInteger:Ljava/util/concurrent/atomic/AtomicInteger;
+      20: return
+
+  public static void main(java.lang.String[]);
+    Code:
+       0: getstatic     #6                  // Field java/lang/System.out:Ljava/io/PrintStream;
+       3: iconst_1
+       4: invokevirtual #7                  // Method java/io/PrintStream.println:(I)V
+       7: return
 
   public void add();
     Code:
@@ -72,14 +86,16 @@ public class com.mdh.interview.subject.volatileCode.Add {
        7: putfield      #2                  // Field num:I
       10: return
 
-  public static void main(java.lang.String[]);
+  public void atomicAdd();
     Code:
-       0: getstatic     #3                  // Field java/lang/System.out:Ljava/io/PrintStream;
-       3: iconst_1
-       4: invokevirtual #4                  // Method java/io/PrintStream.println:(I)V
-       7: return
+       0: aload_0
+       1: getfield      #5                  // Field atomicInteger:Ljava/util/concurrent/atomic/AtomicInteger;
+       4: invokevirtual #8                  // Method java/util/concurrent/atomic/AtomicInteger.incrementAndGet:()I
+       7: pop
+       8: return
 }
 
 Process finished with exit code 0
+
 
 ~~~
