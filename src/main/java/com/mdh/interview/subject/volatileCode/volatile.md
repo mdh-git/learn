@@ -6,6 +6,8 @@ volatile是java虚拟机提供的轻量级的同步机制
     1.保证可见性(主内存修改，每个线程都可见)
     2.不保证原子性
     3.禁止指令重排
+
+可见性和有序性 是通过内存屏障来实现的, 参考文档：https://blog.csdn.net/huyongl1989/article/details/90712393
 ~~~
 
 ## JMM（java内存模型）
