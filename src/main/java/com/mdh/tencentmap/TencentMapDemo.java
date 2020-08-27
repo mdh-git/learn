@@ -13,6 +13,7 @@ import org.apache.http.util.EntityUtils;
 import org.springframework.util.Assert;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  * 腾讯地图
@@ -28,7 +29,9 @@ public class TencentMapDemo {
         String response = null;
         response = "{\"status\":0,\"message\":\"query ok\",\"result\":{\"rows\":[{\"elements\":[{\"distance\":7034,\"duration\":1538}]}]}}";
         String result = getResult(response);
-        System.out.println(result);
+        BigDecimal bigDecimal = new BigDecimal(result);
+        BigDecimal divide = bigDecimal.divide(new BigDecimal("100"),2, BigDecimal.ROUND_HALF_UP);
+        System.out.println(divide.toString());
 
     }
 
