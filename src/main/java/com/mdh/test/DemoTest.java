@@ -17,4 +17,5 @@ public class DemoTest {
 
         System.out.println(3|9);
     }
+
 }
