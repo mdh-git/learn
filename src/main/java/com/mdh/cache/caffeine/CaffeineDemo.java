@@ -1,11 +1,10 @@
 package com.mdh.cache.caffeine;
 
-import com.github.benmanes.caffeine.cache.AsyncLoadingCache;
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.LoadingCache;
+import com.github.benmanes.caffeine.cache.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.checkerframework.checker.index.qual.NonNegative;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -32,18 +31,15 @@ public class CaffeineDemo {
 
         //timeOne();
 
-        LoadingCache<Object, DataObject> cache = Caffeine.newBuilder()
-                .expireAfterWrite(3, TimeUnit.SECONDS)
-                .weakKeys()
-                .weakValues()
-                .build(k -> DataObject.get("Data for " + k));
-        System.out.println("大小容量size：" + cache.estimatedSize());
-        try {
-            TimeUnit.SECONDS.sleep(4);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        System.out.println("大小容量size：" + cache.estimatedSize());
+        //timeTwo();
+
+        //custom();
+
+        //recovery();
+
+        //refresh();
+
+        statistics();
     }
 
 
@@ -169,6 +165,105 @@ public class CaffeineDemo {
         }
         cache.cleanUp();
         System.out.println("大小容量size：" + cache.estimatedSize());
+    }
+
+    /**
+     * 写入后到期 — 从上次写入发生之后，条目即过期
+     */
+    private static void timeTwo() {
+        LoadingCache<Object, DataObject> cache = Caffeine.newBuilder()
+                .expireAfterWrite(3, TimeUnit.SECONDS)
+                .weakKeys()
+                .weakValues()
+                .build(k -> DataObject.get("Data for " + k));
+        String key = "A";
+        DataObject dataObject = cache.get(key);
+        System.out.println(dataObject);
+        System.out.println("大小容量size：" + cache.estimatedSize());
+        cache.cleanUp();
+        System.out.println("大小容量size：" + cache.estimatedSize());
+        try {
+            TimeUnit.SECONDS.sleep(4);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        cache.cleanUp();
+        System.out.println("大小容量size：" + cache.estimatedSize());
+    }
+
+    /**
+     * 始化自定义策略，实现 Expiry 接口
+     */
+    private static void custom() {
+        LoadingCache<String, DataObject> cache = Caffeine.newBuilder().expireAfter(new Expiry<String, DataObject>() {
+            @Override
+            public long expireAfterCreate(@NonNull String key, @NonNull DataObject dataObject, long currentTime) {
+                return dataObject.getData().length() * 1000;
+            }
+
+            @Override
+            public long expireAfterUpdate(@NonNull String key, @NonNull DataObject dataObject, long currentTime, @NonNegative long currentDuration) {
+                return currentDuration;
+            }
+
+            @Override
+            public long expireAfterRead(@NonNull String key, @NonNull DataObject dataObject, long currentTime, @NonNegative long currentDuration) {
+                return currentDuration;
+            }
+        }).build(k -> DataObject.get("Data for " + k));
+        String value = cache.get("A").getData();
+        System.out.println(value);
+    }
+
+    /**
+     * 基于引用回收
+     * 可以将缓存配置为启用缓存键值的垃圾回收。
+     * key 和 value 配置为 弱引用，并且我们可以仅配置软引用以进行垃圾回收。
+     *
+     * 当没有任何对对象的强引用时，使用 WeakReference 可以启用对象的垃圾收回收。
+     * SoftReference 允许对象根据 JVM 的全局最近最少使用（Least-Recently-Used）的策略进行垃圾回收。
+     */
+    private static void recovery() {
+        LoadingCache<Object, DataObject> cache = Caffeine.newBuilder()
+                .expireAfterWrite(10, TimeUnit.SECONDS)
+                .weakKeys()
+                .weakValues()
+                .build(k -> DataObject.get("Data for " + k));
+
+        Caffeine.newBuilder()
+                .expireAfterWrite(10, TimeUnit.SECONDS)
+                .softValues()
+                .build(k -> DataObject.get("Data for " + k));
+    }
+
+    /**
+     * 刷新
+     * expireAfter 和 refreshAfter 之间的区别。
+     * 当请求过期条目时，执行将发生阻塞，直到 build Function 计算出新值为止。
+     * 如果条目可以刷新，则缓存将返回一个旧值，并异步重新加载该值。
+     */
+    private static void refresh(){
+        Caffeine.newBuilder()
+                .refreshAfterWrite(1, TimeUnit.MINUTES)
+                .build(k -> DataObject.get("Data for " + k));
+    }
+
+    /**
+     * 统计
+     */
+    private static void statistics(){
+        LoadingCache<String, DataObject> cache = Caffeine.newBuilder()
+                .maximumSize(100)
+                .recordStats()
+                .build(k -> DataObject.get("Data for " + k));
+        cache.get("A");
+        cache.get("B");
+        cache.get("B");
+        cache.get("C");
+        cache.get("C");
+
+        System.out.println(cache.stats().hitCount());
+        System.out.println(cache.stats().missCount());
     }
 
 }
