@@ -1,0 +1,188 @@
+package com.mdh.cache.caffeine;
+
+import com.github.benmanes.caffeine.cache.AsyncLoadingCache;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+
+/**
+ * Caffeine的三种缓存填充策略：手动、同步加载和异步加载
+ * @author madonghao
+ * @create 2020-08-31 14:20
+ **/
+public class CaffeineDemo {
+    public static void main(String[] args) {
+
+        //manual();
+
+        //sync();
+
+        //async();
+
+        //sizeOne();
+
+        //sizeTwo();
+
+        //timeOne();
+
+        LoadingCache<Object, DataObject> cache = Caffeine.newBuilder()
+                .expireAfterWrite(3, TimeUnit.SECONDS)
+                .weakKeys()
+                .weakValues()
+                .build(k -> DataObject.get("Data for " + k));
+        System.out.println("大小容量size：" + cache.estimatedSize());
+        try {
+            TimeUnit.SECONDS.sleep(4);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println("大小容量size：" + cache.estimatedSize());
+    }
+
+
+    /**
+     * 手动将值放入缓存之后再检索。
+     *
+     * get 方法可以原子方式执行计算。
+     * 这意味着您只进行一次计算 — 即使多个线程同时请求该值。
+     * 这就是为什么使用 get 优于 getIfPresent。
+     */
+    private static void manual() {
+        Cache<String, DataObject> cache = Caffeine.newBuilder()
+                .expireAfterWrite(1, TimeUnit.MINUTES)
+                .maximumSize(100)
+                .build();
+        String key = "A";
+        DataObject ifPresent = cache.getIfPresent(key);
+        if(Objects.isNull(ifPresent)){
+            System.out.println("缓存中为空");
+        }
+        cache.put(key, new DataObject("数据一"));
+        // 移除key
+        cache.invalidate(key);
+        DataObject ifPresent1 = cache.getIfPresent(key);
+        if(Objects.nonNull(ifPresent1)){
+            System.out.println(ifPresent1.toString());
+        }
+        DataObject dataObject = cache.get(key, k -> DataObject.get(key));
+        if(Objects.nonNull(dataObject)){
+            System.out.println(dataObject);
+        }
+    }
+
+    /**
+     * 同步加载
+     */
+    private static void sync() {
+        String key = "A";
+        LoadingCache<Object, DataObject> cache = Caffeine.newBuilder()
+                .maximumSize(100)
+                .expireAfterWrite(1, TimeUnit.MINUTES)
+                .build(k -> DataObject.get("Data for " + k));
+        DataObject dataObject = cache.get(key);
+        System.out.println(dataObject);
+        Map<Object, DataObject> map = cache.getAll(Arrays.asList("A", "B", "C"));
+        System.out.println(map.size());
+    }
+
+    /**
+     * 异步加载
+     */
+    private static void async() {
+        AsyncLoadingCache<Object, DataObject> cache = Caffeine.newBuilder()
+                .maximumSize(100)
+                .expireAfterWrite(1, TimeUnit.MINUTES)
+                .buildAsync(k -> DataObject.get("Data for " + k));
+        String key = "A";
+        cache.get(key).thenAccept(dataObject -> {
+            System.out.println(dataObject);
+            System.out.println("key:Data for " + key + ",value:"+ dataObject.getData());
+        });
+    }
+
+    /**
+     * 基于大小回收
+     * 假定当超过配置的缓存大小限制时会发生回收。
+     * 获取大小有两种方法：缓存中计数对象，或获取权重。
+     * cleanUp 方法。 因为缓存回收被异步执行，这种方法有助于等待回收的完成。
+     */
+    private static void sizeOne() {
+        LoadingCache<String, DataObject> cache = Caffeine.newBuilder()
+                .maximumSize(1)
+                .build(k -> DataObject.get("Data for " + k));
+        System.out.println("大小容量size：" + cache.estimatedSize());
+        DataObject objectA = cache.get("A");
+        System.out.println(objectA);
+        System.out.println("大小容量size：" + cache.estimatedSize());
+        DataObject objectB = cache.get("B");
+        System.out.println(objectB);
+        System.out.println("大小容量size：" + cache.estimatedSize());
+        // 将第二个值添加到缓存中，这导致第一个值被删除
+        // cleanUp 方法 缓存回收被异步执行，这种方法有助于等待回收的完成
+        cache.cleanUp();
+        System.out.println("大小容量size：" + cache.estimatedSize());
+    }
+
+    /**
+     * 基于大小回收
+     */
+    private static void sizeTwo() {
+        LoadingCache<String, DataObject> cache = Caffeine.newBuilder()
+                .maximumWeight(10)
+                .weigher((k,v) -> 3)
+                .build(k -> DataObject.get("Data for " + k));
+        System.out.println("大小容量size：" + cache.estimatedSize());
+        DataObject objectA = cache.get("A");
+        System.out.println(objectA);
+        DataObject objectB = cache.get("B");
+        System.out.println(objectB);
+        DataObject objectC = cache.get("C");
+        System.out.println(objectC);
+        DataObject objectD = cache.get("D");
+        System.out.println(objectD);
+        System.out.println("大小容量size：" + cache.estimatedSize());
+        cache.cleanUp();
+        System.out.println("大小容量size：" + cache.estimatedSize());
+    }
+
+    /**
+     * 访问后到期 — 从上次读或写发生后，条目即过期
+     */
+    private static void timeOne() {
+        LoadingCache<String, DataObject> cache = Caffeine.newBuilder()
+                .expireAfterAccess(5, TimeUnit.SECONDS)
+                .build(k -> DataObject.get("Data for " + k));
+        String a = cache.get("A").getData();
+        System.out.println(a);
+        System.out.println("大小容量size：" + cache.estimatedSize());
+        try {
+            TimeUnit.SECONDS.sleep(6);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        cache.cleanUp();
+        System.out.println("大小容量size：" + cache.estimatedSize());
+    }
+
+}
+
+@AllArgsConstructor
+@Data
+class DataObject {
+    private final String data;
+
+    private static int objectCounter = 0;
+    // standard constructors/getters
+
+    public static DataObject get(String data) {
+        objectCounter++;
+        return new DataObject(data);
+    }
+}

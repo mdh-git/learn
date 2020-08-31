@@ -193,4 +193,24 @@ public class Demo {
         list.addAll(collect1);
         System.out.println(list);
     }
+
+    @Test
+    public void test08(){
+        List<Integer> nums = Arrays.asList(1,2,3,4,5,6,7,8,9);
+        Optional<Integer> reduce = nums.stream().reduce(Integer::sum);
+        System.out.println(reduce.get());
+
+        Optional<Integer> reduce1 = nums.stream().reduce(Integer::min);
+        System.out.println(reduce1.get());
+
+        Optional<Integer> reduce2 = nums.stream().reduce(Integer::max);
+        System.out.println(reduce2.get());
+
+        Integer reduce3 = nums.stream().reduce(Integer.MAX_VALUE, Integer::min);
+        System.out.println(reduce3);
+
+        Integer reduce4 = nums.stream().reduce(Integer.MIN_VALUE, Integer::max);
+        System.out.println(reduce4);
+
+    }
 }
