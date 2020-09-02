@@ -1,5 +1,14 @@
 # Caffeine
 
+## 缓存
+~~~
+堆缓存 （Ehcache3.x、Guava Cache等）
+堆外缓存（Ehcache3.x、MapDB等）
+分布式缓存（Redis、 memcached等）
+
+Java堆内缓存框架Caffeine
+~~~
+
 ## Caffeine三种缓存填充策略
 ~~~
 手动、同步加载和异步加载

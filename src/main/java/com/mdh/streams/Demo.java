@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Lists.transform：能够轻松的从一种类型的list转换为另一种类型的list。
@@ -213,4 +214,17 @@ public class Demo {
         System.out.println(reduce4);
 
     }
+
+    @Test
+    public void test09(){
+        Integer array[] = {1, 2, 3};
+        Stream<Integer> stream = Arrays.stream(array);
+        stream.forEach(System.out::println);
+
+
+        List<String> words = Arrays.asList("Hello","World");
+        List<String> list = words.stream().map(t -> t.split("")).flatMap(Arrays::stream).distinct().collect(Collectors.toList());
+        System.out.println(list);
+    }
+
 }
