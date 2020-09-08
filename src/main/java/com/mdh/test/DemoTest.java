@@ -15,7 +15,8 @@ public class DemoTest {
         // 1001   9
         // 1011  11
 
-        System.out.println(3|9);
+        String xiaolang = "http://www.{union}.test05.dongfangfuli.com".replace("{union}", "xiaolang");
+        System.out.println(xiaolang);
     }
 
 }
