@@ -40,3 +40,48 @@ SynchronousQueue是一个不存储元素的阻塞队列。
 每一个put操作必须等待一个take操作,否者不能继续添加元素,反之亦然
 
 ~~~
+
+# synchronized 和 Lock的区别? 用心的lock有什么好处？
+~~~
+1. 原始构造
+    synchronized是关键字属于JVM层面
+        MONITORENTER(monitorenter  通过查看字节码文件) 底层是通过monitor对象来完成,其实wait/notify等方法也依赖于monitor对象,只有在同步块或方法中才能调wait/notify等方法
+        monitorexit
+        (字节码文件 一个monitorenter  两个monitorexit   synchronized通过一次正常退出,一次异常退出,保证不会出现死锁 )
+
+    Lock是具体类(java.util.concurrent.locks.Lock)是api层面的锁
+ 
+2.使用方法
+    synchronized不需要用户去手动释放锁,当synchronized代码执行完成后系统会自动让线程释放对锁的占用
+
+    ReentrantLock则需要用户去手动释放锁,没有主动释放锁,就有可能导致出现死锁现象。
+        需要lock()和unlock()方法配合try/finally语句块完成
+
+3.等待是否可中断
+    synchronized不能中断,除非抛出异常或者正常进行完成
+
+    ReentrantLock 可中断   1.设置超时方法 tryLock(long time, TimeUnit unit)
+                          2. lockInterruptibly放代码块中,调用interrupt()方法可中断
+
+public void lockInterruptibly() throws InterruptedException {
+        sync.acquireInterruptibly(1);
+    }
+
+4.加锁是否公平
+    synchronized非公平锁
+
+    ReentrantLock两者都可以,默认采用非公平锁, 构造方法可以传入boolean值,true为公平锁
+
+public ReentrantLock(boolean fair) {
+        sync = fair ? new FairSync() : new NonfairSync();
+    }
+
+public ReentrantLock() {
+        sync = new NonfairSync();
+    }
+
+5.锁绑定多个条件Condition
+    synchronized没有
+
+    ReentrantLock用来实现分组唤醒需要唤醒的线程们,可以精确唤醒,而不是像synchronized要么随机唤醒一个要么唤醒全部线程。
+~~~
