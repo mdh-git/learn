@@ -19,10 +19,15 @@ public class CallableDemo {
 //
 //        }
         System.out.println(Thread.currentThread().getName() + "\t" + task.get());
+
     }
 }
 
-class MyThread implements Runnable{
+class MyThread extends Thread{
+
+}
+
+class MyThread1 implements Runnable{
 
     @Override
     public void run() {
