@@ -8,11 +8,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 public class HashSetDemo {
     public static void main(String[] args) {
-        // demo1();
+         demo1();
 
         //demo2();
 
-        demo3();
+        // demo3();
     }
 
     private static void demo3() {

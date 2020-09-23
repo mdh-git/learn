@@ -47,3 +47,10 @@ JVM将记录锁的占有者，并且将请求计数器置为1 。
 
 读锁的共享锁可保证并发读是非常高效的,读写,写读,写写的过程是互斥的。
 ~~~
+
+## ReentrantLock
+~~~
+https://blog.csdn.net/fuyuwei2015/article/details/83719444
+
+ReentrantLock主要利用CAS+AQS队列来实现
+~~~

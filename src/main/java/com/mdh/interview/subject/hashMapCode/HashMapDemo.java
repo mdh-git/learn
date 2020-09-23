@@ -5,11 +5,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class HashMapDemo {
     public static void main(String[] args) {
-        // demo1();
+         demo1();
 
         //demo2();
 
-        demo3();
+        //demo3();
     }
 
     /**

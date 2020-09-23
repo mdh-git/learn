@@ -92,13 +92,13 @@ public class BlockingQueueDemo {
     private static void overtime() throws InterruptedException {
         BlockingQueue<String> blockingQueue = new ArrayBlockingQueue<String>(3);
 
-        blockingQueue.offer("a", 2l, TimeUnit.SECONDS);
-        blockingQueue.offer("b", 2l, TimeUnit.SECONDS);
-        blockingQueue.offer("c", 2l, TimeUnit.SECONDS);
+        blockingQueue.offer("a", 2L, TimeUnit.SECONDS);
+        blockingQueue.offer("b", 2L, TimeUnit.SECONDS);
+        blockingQueue.offer("c", 2L, TimeUnit.SECONDS);
 
-        blockingQueue.poll(2l, TimeUnit.SECONDS);
-        blockingQueue.poll(2l, TimeUnit.SECONDS);
-        blockingQueue.poll(2l, TimeUnit.SECONDS);
+        blockingQueue.poll(2L, TimeUnit.SECONDS);
+        blockingQueue.poll(2L, TimeUnit.SECONDS);
+        blockingQueue.poll(2L, TimeUnit.SECONDS);
     }
 
 }
