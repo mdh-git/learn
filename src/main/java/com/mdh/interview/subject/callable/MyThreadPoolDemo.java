@@ -10,6 +10,7 @@ import java.util.concurrent.*;
  */
 public class MyThreadPoolDemo {
     public static void main(String[] args) {
+        System.out.println(Runtime.getRuntime().availableProcessors());
 
         // getCpuInfo();
 
@@ -35,14 +36,15 @@ public class MyThreadPoolDemo {
                 TimeUnit.SECONDS,
                 workQueue,
                 Executors.defaultThreadFactory(),
-                discardOldestPolicy
+                callerRunsPolicy
         );
 
         // i分别尝试 1  3  5  8  9看结果
         try {
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 9; i++) {
+                int finalI = i;
                 threadPool.execute(() -> {
-                    System.out.println(Thread.currentThread().getName() + "  处理");
+                    System.out.println(Thread.currentThread().getName() + " : " + (finalI + 1) + "  处理");
                 });
             }
         } catch (Exception e) {
