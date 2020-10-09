@@ -35,7 +35,7 @@ class ProxyClothFactory implements ClothFactory{
 /**
  * 被代理类
  */
-class NikeClotnFactory implements ClothFactory{
+class NikeClothFactory implements ClothFactory{
 
     @Override
     public void produceCloth() {
@@ -48,7 +48,7 @@ public class StaticProxyTest {
 
     public static void main(String[] args) {
         // 创建被代理类的对象
-        ClothFactory nick = new NikeClotnFactory();
+        ClothFactory nick = new NikeClothFactory();
         // 创建代理类的对象
         ClothFactory proxyClothFactory = new ProxyClothFactory(nick);
         proxyClothFactory.produceCloth();
