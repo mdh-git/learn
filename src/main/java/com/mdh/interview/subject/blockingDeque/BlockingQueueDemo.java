@@ -1,5 +1,6 @@
 package com.mdh.interview.subject.blockingDeque;
 
+import java.util.HashMap;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentSkipListMap;
@@ -22,6 +23,8 @@ public class BlockingQueueDemo {
 
 
         ConcurrentSkipListMap map = new ConcurrentSkipListMap();
+
+        HashMap hashMap = new HashMap();
     }
 
     /**

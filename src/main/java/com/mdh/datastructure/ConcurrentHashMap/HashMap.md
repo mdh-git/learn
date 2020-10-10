@@ -13,7 +13,7 @@ HashMap和ConcurrentHashMap的重点在于:
 
 
 
-## 为什么用Hashmap
+## 为什么用HashMap
 
 ​	HashMap是一个散列桶（数组加链表），它存储的内容是键值对key-value映射。
 
@@ -21,7 +21,7 @@ HashMap和ConcurrentHashMap的重点在于:
 
 ​	HashMap是非synchronized，所以 HashMap 很快
 
-​	HashMap可以接受null键和值，而HashTable则不能（原因为equlas（）方法需要对象，因为HashMap是最后的API经过处理才可以）
+​	HashMap可以接受null键和值，而HashTable则不能（原因为equals（）方法需要对象，因为HashMap是最后的API经过处理才可以）
 
 
 
@@ -94,9 +94,9 @@ static class Node<K,V> implements Map.Entry<K,V> {
 
 ## HashMap 中 hash 函数怎么是实现的？
 
-在 hashmap 中要找到某个元素，需要根据 key 的 hash 值来求得对应数组中的位置。
+在 HashMap 中要找到某个元素，需要根据 key 的 hash 值来求得对应数组中的位置。
 
-hashmap 的数据结构是数组和链表的结合，所以我们当然希望这个 hashmap 里面的元素位置尽量的分布均匀些，尽量使得每个位置上的元素数量只有一个。那么当我们用 hash 算法求得这个位置的时候，马上就可以知道对应位置的元素就是我们要的，而不用再去遍历链表。 所以，我们首先想到的就是把 hashcode 对数组长度取模运算。这样一来，元素的分布相对来说是比较均匀的。
+HashMap 的数据结构是数组和链表的结合，所以我们当然希望这个 HashMap 里面的元素位置尽量的分布均匀些，尽量使得每个位置上的元素数量只有一个。那么当我们用 hash 算法求得这个位置的时候，马上就可以知道对应位置的元素就是我们要的，而不用再去遍历链表。 所以，我们首先想到的就是把 hashcode 对数组长度取模运算。这样一来，元素的分布相对来说是比较均匀的。
 
 ```
 static final int hash(Object key) {
@@ -250,7 +250,7 @@ put操作：首先进行索引计算 （key.hashCode() & 0x7FFFFFFF）% table.le
 
 
 
-## 可以使用 CocurrentHashMap 来代替 Hashtable 吗？
+## 可以使用 ConcurrentHashMap 来代替 Hashtable 吗？
 
 Hashtable 是 synchronized 的，但是 ConcurrentHashMap 同步性能更好，因为它仅仅根据同步级别对 map 的一部分进行上锁
 ConcurrentHashMap 当然可以代替 HashTable，但是 HashTable 提供更强的线程安全性
@@ -258,9 +258,9 @@ ConcurrentHashMap 当然可以代替 HashTable，但是 HashTable 提供更强�
 
 
 
-## CocurrentHashMap（JDK 1.7）
+## ConcurrentHashMap（JDK 1.7）
 
-（1）CocurrentHashMap 是由 Segment 数组和 HashEntry 数组和链表组成
+（1）ConcurrentHashMap 是由 Segment 数组和 HashEntry 数组和链表组成
 （2）Segment 是基于重入锁（ReentrantLock）：可重入锁是指同一个线程可以多次获取同一把锁
 
 一个数据段竞争锁。每个 HashEntry 一个链表结构的元素，利用 Hash 算法得到索引确定归属的数据段，也就是对应到在修改时需要竞争获取的锁。ConcurrentHashMap 支持 CurrencyLevel（Segment 数组数量）的线程并发。每当一个线程占用锁访问一个 Segment 时，不会影响到其他的 Segment
@@ -281,9 +281,9 @@ ConcurrentHashMap 当然可以代替 HashTable，但是 HashTable 提供更强�
 
 
 
-## CocurrentHashMap（JDK 1.8）
+## ConcurrentHashMap（JDK 1.8）
 
-CocurrentHashMap 抛弃了原有的 Segment 分段锁，采用了 CAS + synchronized 来保证并发安全性。其中的 val next 都用了 volatile 修饰，保证了可见性。
+ConcurrentHashMap 抛弃了原有的 Segment 分段锁，采用了 CAS + synchronized 来保证并发安全性。其中的 val next 都用了 volatile 修饰，保证了可见性。
 
 **最大特点是引入了 CAS：**
 
