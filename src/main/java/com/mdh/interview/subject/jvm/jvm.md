@@ -72,3 +72,116 @@ Eden区和From区域,对这两个进行垃圾回收,经过这次回收后还存�
             再次扫描,并往一端滑动存活对象
 
 ~~~
+
+## JVM的参数类型
+~~~
+1.标配参数
+    -version
+    -help
+    java -showversion
+2.X参数
+    -Xint(解释执行)
+    -Xcomp(第一次使用就编译成本地代码)
+    -Xmixed(混合模式)
+3.XX参数
+    (1)Boolean类型
+        公式
+            -XX:+或者- 某个属性值(+ 表示开启  -表示关闭)
+        case
+            是否打印GC收集细节
+                -XX:-PrintGCDetails
+                -XX:+PrintGCDetails
+            是否使用串行垃圾回收器
+                -XX:-UseSerialGC
+                -XX:+UseSerialGC
+    (2)KV设置类型
+        公式
+            -XX:属性key=属性值value
+        case
+            -XX:MetaspaceSize=21807104
+            -XX:MaxTenuringThreshold=15(新生代存活15次)
+    jinfo类型,如何查看当前运行程序的额配置
+        -jinfo flags 进程号(查看所有的)
+    
+    -Xms等价于-XX:InitialHeapSize=134217728(初始堆内存)
+    -Xmx等价于-XX:MaxHeapSize=2134900736(最大堆内存)
+~~~
+
+## 默认值
+~~~
+java -XX:+PrintFlagsInitial
+    查看JVM的初始值 =
+
+java -XX:+PrintFlagsFinal
+    查看修改的参数  := 
+
+java -XX:+PrintCommanddLineFlags -vrsion
+    最后一个参数表示使用的是哪个垃圾回收器
+
+~~~
+
+## JVM常用基本配置参数
+~~~
+-Xms(初始内存大小)  Runtime.getRuntime().totalMemory();  (默认物理内存的1/64)
+-Xmx(最大内存大小)  Runtime.getRuntime().maxMemory();  (默认物理内存的1/4)
+-Xss(设置单个线程栈的大小,一般默认为512k~1024k)  等价于 -XX:ThreadStackSize (如果-XX:ThreadStackSize=0  代表使用JVM默认的大小)
+-Xmn(设置年轻代大小)
+-XX:MetaspaceSize(设置元空间大小)
+    元空间的本质好永久代类似,都是对JVM规范中方法区的实现。
+    不过元空间与永久代之间最大的区别:
+    元空间并不在虚拟机中,而是使用本地内存。
+    因此,默认情况下,元空间的大小仅受本地内存限制。
+         -XX:MetaspaceSize = 1024m -XX:+PrrintFlagsFinal
+-XX:+PrintGCDetails(打印出GC的详细过程)
+-XX:SurvivorRatio(设置新生代中Eden和S0/S1空间的比例) 默认-XX:SurvivorRatio=8,Eden:S0:S1=8:1:1
+-XX:NewRatio(设置年轻代与老年代在堆结构到的占比) 默认 -XX:NewRatio=2 新生代:老年代=2:1
+-XX:MaxTenuringThreshold(设置垃圾的最大年龄) 默认15次(会动态调整)
+
+配置
+-Xms128m 
+-Xmx4096m
+-Xss1024k
+-XX:MetaspaceSize=512m
+-XX:+PrintCommandLineFlags
+-XX:+PrintGCDetails
+-XX:+UsParallGC(jdk8 默认配置就是并行垃圾回收器)
+~~~
+
+## GC垃圾回收
+~~~
+GC垃圾回收   新生代
+
+(设置jvm参数  -Xms10m -Xmx10m -XX:+PrintGCDetails)
+(程序)
+-XX:+PrintGCDetails (输出详细GC收集日志信息)
+    GC()
+    FullGC()
+
+[GC (Allocation Failure) [PSYoungGen: 2048K->504K(2560K)] 2048K->957K(9728K), 0.0011659 secs] [Times: user=0.00 sys=0.00, real=0.00 secs] 
+
+[GC (Allocation Failure) [PSYoungGen:   : GC类型
+2048K                                   : YoungGC前新生代内存占用
+504K                                    : YoungGC后新生代内存占用
+(2560K)                                 : 新生代总共大小
+
+2048K                                   : YoungGC前JVM堆内存占用
+957K                                    : YoungGC后JVM堆内存占用
+(9728K)                                 : JVM堆总大小
+
+0.0011659 secs                          : YoungGC耗时
+Times: user=0.00                        : YoungGC用户耗时
+sys=0.00                                : YoungGC系统耗时
+real=0.00 secs                          : YoungGC实际耗时
+~~~
+
+## FullGC垃圾回收
+~~~
+FullGC垃圾回收  老年代
+
+[Full GC (Allocation Failure) [PSYoungGen: 0K->0K(2560K)] [ParOldGen: 1022K->1004K(7168K)] 1022K->1004K(9728K), [Metaspace: 3296K->3296K(1056768K)], 0.0075171 secs] [Times: user=0.00 sys=0.00, real=0.01 secs] 
+
+
+规律:
+[名称: GC前内存占用 -> GC后内存占用 该区内存总大小
+~~~
+
