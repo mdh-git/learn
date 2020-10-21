@@ -54,6 +54,7 @@ loader.getParent().getParent()    null
 
 ## 类加载器的双亲委派模型:
 ~~~
+private final ClassLoader parent; 
 protected Class<?> loadClass(String name, boolean resolve)
         throws ClassNotFoundException
     {

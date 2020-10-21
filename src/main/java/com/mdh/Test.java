@@ -3,6 +3,7 @@ package com.mdh;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,13 +30,13 @@ public class Test {
 //        String JD_categoryId = "1234";
 //        System.out.println(JD_categoryId.equals(String.valueOf(categoryId)));
 
-            Map<Integer, Integer> map = new HashMap<>();
-            map.put(1,1);
-            Integer integer = map.get(2);
-        System.out.println(integer);
-        System.out.println(Objects.isNull(map));
-        Integer i = Objects.isNull(map) ? 0 : integer;
-        System.out.println(i);
+
+        AtomicInteger nextHashCode = new AtomicInteger();
+
+        int HASH_INCREMENT = 0x61c88647;
+        System.out.println(HASH_INCREMENT);
+        System.out.println(nextHashCode.getAndAdd(HASH_INCREMENT));
+        System.out.println(nextHashCode.getAndAdd(HASH_INCREMENT));
     }
 
 
