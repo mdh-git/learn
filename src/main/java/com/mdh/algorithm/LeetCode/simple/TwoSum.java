@@ -1,6 +1,7 @@
 package com.mdh.algorithm.LeetCode.simple;
 
-import org.junit.Test;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * LeetCode算法的第一道题目：
@@ -26,9 +27,11 @@ import org.junit.Test;
 public class TwoSum {
     public static void main(String[] args) {
         int[] nums = {3, 2, 4};
-        int target = 6;
-        int[] ints = twoSumOne(nums, target);
-        System.out.println(ints[0]+ "," + ints[1]);
+        int target = 7;
+        int[] ints1 = twoSumOne(nums, target);
+        System.out.println(ints1[0]+ "," + ints1[1]);
+        int[] ints2 = twoSumTwo(nums, target);
+        System.out.println(ints2[0]+ "," + ints2[1]);
     }
 
     /**
@@ -44,6 +47,19 @@ public class TwoSum {
                     return new int[]{i, j};
                 }
             }
+        }
+        return null;
+    }
+
+    public static int[] twoSumTwo(int[] nums, int target) {
+        Map<Integer, Integer> map = new HashMap<>();
+        for(int i = 0; i < nums.length ; i++){
+            if(map.containsKey(target - nums[i])){
+                return new int[]{map.get(target - nums[i]), i};
+            }
+            // Map    k      v
+            // put  当前值   下标
+            map.put(nums[i], i);
         }
         return null;
     }
