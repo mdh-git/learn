@@ -45,7 +45,7 @@ SynchronousQueue是一个不存储元素的阻塞队列。
 
 ~~~
 
-# synchronized 和 Lock的区别? 用心的lock有什么好处？
+# synchronized 和 Lock的区别?
 ~~~
 1. 原始构造
     synchronized是关键字属于JVM层面
