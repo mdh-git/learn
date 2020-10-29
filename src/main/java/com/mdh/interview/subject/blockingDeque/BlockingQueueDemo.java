@@ -1,9 +1,7 @@
 package com.mdh.interview.subject.blockingDeque;
 
-import java.util.HashMap;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -20,11 +18,6 @@ public class BlockingQueueDemo {
         block();
 
         overtime();
-
-
-        ConcurrentSkipListMap map = new ConcurrentSkipListMap();
-
-        HashMap hashMap = new HashMap();
     }
 
     /**

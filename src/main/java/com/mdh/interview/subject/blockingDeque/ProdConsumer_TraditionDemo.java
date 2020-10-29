@@ -1,5 +1,6 @@
 package com.mdh.interview.subject.blockingDeque;
 
+import java.util.HashSet;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -19,6 +20,8 @@ import java.util.concurrent.locks.ReentrantLock;
 public class ProdConsumer_TraditionDemo {
     public static void main(String[] args) {
         ShareData shareData = new ShareData();
+
+        new HashSet();
 
         new Thread(() -> {
             for (int i = 1; i <= 5; i++) {
