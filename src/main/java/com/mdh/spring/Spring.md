@@ -89,3 +89,42 @@ https://mp.weixin.qq.com/s?__biz=Mzg2OTA0Njk0OA==&mid=2247485303&idx=1&sn=9e4626
 观察者模式: Spring 事件驱动模型就是观察者模式很经典的一个应用。
 适配器模式 :Spring AOP 的增强或通知(Advice)使用到了适配器模式、spring MVC 中也是用到了适配器模式适配Controller。
 ~~~
+
+## Spring AOP 代理有 CglibAopProxy 和 JdkDynamicAopProxy
+~~~
+Spring AOP 代理有 CglibAopProxy 和 JdkDynamicAopProxy 两种，
+对于 CglibAopProxy，需要调用其内部类的 DynamicAdvisedInterceptor 的 intercept 方法。
+对于 JdkDynamicAopProxy，需要调用其 invoke 方法。
+~~~
+
+## Spring怎么检测是否存在循环依赖
+~~~
+检测循环依赖相对比较容易，Bean在创建的时候可以给该Bean打标，如果递归调用回来发现正在创建中的话，即说明了循环依赖了。
+~~~
+
+## Spring怎么解决循环依赖
+~~~
+Spring的单例对象的初始化主要分为三步：
+（1）createBeanInstance：实例化，其实也就是调用对象的构造方法实例化对象
+（2）populateBean：填充属性，这一步主要是多bean的依赖属性进行填充
+（3）initializeBean：调用spring xml中的init 方法。
+
+循环依赖主要发生在第一、第二部。也就是构造器循环依赖和field循环依赖。
+
+
+singletonFactories三级缓存的前提是执行了构造器，所以构造器的循环依赖没法解决。
+
+如何解决
+https://ershi.blog.csdn.net/article/details/88818418?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-3.channel_param&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-3.channel_param
+（1）重新设计
+    重新设计结构，消除循环依赖。
+（2）使用注解 @Lazy
+    一种最简单的消除循环依赖的方式是通过延迟加载。在注入依赖时，先注入代理对象，当首次使用时再创建对象完成注入。
+（3）使用Setter/Field注入
+    Spring文档建议的一种方式是使用setter注入。当依赖最终被使用时才进行注入。
+（4）使用@PostConstruct
+    J2EE已经在Java9中弃用@PostConstruct和@PreDestroy,并计划在Java11中将其删除
+    Spring提供了InitializingBean和DisposableBean来实现@PostConstruct和@PreDestroy注解相同的效果。
+    但是Spring官网不建议使用,手动添加@PostConstruct和@PreDestroy使用
+（5）实现ApplicationContextAware与InitializingBean
+~~~

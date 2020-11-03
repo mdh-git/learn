@@ -1,7 +1,7 @@
 package com.mdh.datastructure.ConcurrentHashMap;
 
-import java.util.HashMap;
-import java.util.Map;
+
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @Author: madonghao
@@ -9,5 +9,9 @@ import java.util.Map;
  */
 public class Demo {
 
-    Map map = new HashMap();
+    public static void main(String[] args) {
+        ConcurrentHashMap<Object, Object> hashMap = new ConcurrentHashMap<>();
+    }
+
+
 }
