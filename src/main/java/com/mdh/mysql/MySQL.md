@@ -1,5 +1,10 @@
 # MySQl
 ~~~
+索引是帮助MySQL高效获取数据的排好序的数据结构。
+
+SHOW GLOBAL STATUS like 'Innodb_page_size';
+16384 = 16k
+
 https://blog.csdn.net/qq_34337272/article/details/80611486
 https://mp.weixin.qq.com/s?__biz=Mzg2OTA0Njk0OA==&mid=2247485097&idx=1&sn=84c89da477b1338bdf3e9fcd65514ac1&chksm=cea24962f9d5c074d8d3ff1ab04ee8f0d6486e3d015cfd783503685986485c11738ccb542ba7&token=79317275&lang=zh_CN#rd
 ~~~
