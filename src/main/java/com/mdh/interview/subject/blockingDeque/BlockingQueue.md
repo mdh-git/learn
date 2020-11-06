@@ -19,9 +19,10 @@ https://www.jianshu.com/p/7b2f1fa616c6
 
 ArrayBlockingQueue: 一个基于数组结构的有限阻塞队列,此队列按 FIFO(先进先出)原则对元素进行排序。
 
-LinkedBlockingQueue: 一个基于链表结构的阻塞队列,次队列按FIFO(先进先出)排序元素,吞吐量通常高于ArrayBlockingQueue。
+LinkedBlockingQueue: 一个基于链表结构的阻塞队列,此队列按FIFO(先进先出)排序元素,吞吐量通常高于ArrayBlockingQueue。
     LinkedBlockingQueue是允许两个线程同时在两端进行入队或出队的操作的，但一端同时只能有一个线程进行操作，这是通过两把锁来区分的；
-    为了维持底部数据的统一，引入了AtomicInteger的一个count变量，表示队列中元素的个数。count只能在两个地方变化，一个是入队的方法（可以+1），另一个是出队的方法（可以-1），而AtomicInteger是原子安全的，所以也就确保了底层队列的数据同步。 
+    为了维持底部数据的统一，引入了AtomicInteger的一个count变量，表示队列中元素的个数。
+    count只能在两个地方变化，一个是入队的方法（可以+1），另一个是出队的方法（可以-1），而AtomicInteger是原子安全的，所以也就确保了底层队列的数据同步。 
 
     
 SynchronousQueue: 一个不存储元素的阻塞队列,每个插入操作必须等到另外一个线程调用移除操作,否则插入操作一直处于阻塞状态,吞吐量通常高于LinkedBlockingQueue。

@@ -103,3 +103,5 @@ OK
 
 lren key 删除N个value
 lren key 2 v1 删除两个v1
+
+注意：这边和SDS一样，清空并不是直接删除list，而是删除其数据，外层的list结构仍然存在。这其实上是惰性删除。

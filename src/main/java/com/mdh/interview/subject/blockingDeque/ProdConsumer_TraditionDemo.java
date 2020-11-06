@@ -21,8 +21,6 @@ public class ProdConsumer_TraditionDemo {
     public static void main(String[] args) {
         ShareData shareData = new ShareData();
 
-        new HashSet();
-
         new Thread(() -> {
             for (int i = 1; i <= 5; i++) {
                 try {

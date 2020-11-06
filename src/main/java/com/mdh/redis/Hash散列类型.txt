@@ -67,3 +67,9 @@ OK
 4) "apple"
 5) "price"
 6) "5.00"
+
+hash的底层主要是采用字典dict的结构，整体呈现层层封装。
+
+首先dict有四个部分组成，分别是dictType(类型，不咋重要),dictht（核心），rehashidx(渐进式hash的标志)，iterators（迭代器）
+
+接下来是dictht，其有两个数组构成，一个是真正的数据存储位置，还有一个用于hash过程，包括的变量分别是真正的数据table和一些常见变量。
