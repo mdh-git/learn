@@ -21,7 +21,6 @@ public class Add {
 
         Long aLong = Long.valueOf("");
         System.out.println(aLong);
-
     }
     volatile int num = 0;
     AtomicInteger atomicInteger = new AtomicInteger();
