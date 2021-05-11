@@ -145,3 +145,20 @@ try {
     }
 }
 ~~~
+
+## Redis内存调整
+~~~
+如果不设置最大内存大小或者设置最大内存大小为0，在64位操作系统中不限制内存的大小
+
+在redis的配置文件redis.conf中设置maxmemory(单位：字节)
+
+命令
+config get maxmemory
+config set maxmemory value
+
+查看redis内存使用情况
+info memory
+
+当redis存满的时候，再写数据会报OOM
+(error) OOM command not allowed when used memory > 'maxmemory'
+~~~
