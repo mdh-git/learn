@@ -51,7 +51,10 @@ public class Accumulation {
         for(int i = 1; i <= n;i++){
             sum += (1 + i)*i/2;
         }
+
         return sum;
+
+
     }
 
     /**

@@ -21,7 +21,7 @@ package com.mdh.algorithm.jumpfloor;
  */
 public class JumpFloorDemoTwo {
     public static void main(String[] args) {
-        System.out.println(JumpFloorII(3));
+        System.out.println(JumpFloorII(2));
     }
 
     public static int JumpFloorII(int target) {
@@ -31,7 +31,7 @@ public class JumpFloorDemoTwo {
         if(target == 1) {
             return 1;
         }
-        return 2*JumpFloorII(target-1);
+        return 2 * JumpFloorII(target-1);
     }
 
 }
