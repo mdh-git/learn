@@ -14,18 +14,23 @@ public class ThreadPoolExecutorDemo {
 
     public static void main(String[] args) {
 
-        pool = new ThreadPoolExecutor(2,
-                4,
+        pool = new ThreadPoolExecutor(1,
+                1,
                 1000,
                 TimeUnit.MILLISECONDS,
-                new ArrayBlockingQueue<>(5),
+                new ArrayBlockingQueue<>(1),
                 r -> {
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                     System.out.println("线程"+r.hashCode()+"创建");
                     //线程命名
                     Thread th = new Thread(r,"threadPool"+r.hashCode());
                     return th;
                 },
-                new ThreadPoolExecutor.CallerRunsPolicy()){
+                new MyRejectPolicy()){
 
             @Override
             protected void beforeExecute(Thread t, Runnable r) {
@@ -42,10 +47,14 @@ public class ThreadPoolExecutorDemo {
                 System.out.println("线程池退出");
             }
         };
+
+
         for (int i = 0; i < 10; i++) {
             pool.execute(new ThreadTask("Task" + i));
-
         }
+
+
+
         pool.shutdown();
     }
 }

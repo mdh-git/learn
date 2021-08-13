@@ -8,6 +8,8 @@ public class ThreadTask implements Runnable {
 
     private String taskName;
 
+    private String name = "mdh";
+
     @Override
     public void run() {
         //输出执行线程的名称
@@ -20,6 +22,10 @@ public class ThreadTask implements Runnable {
 
     public String getTaskName() {
         return taskName;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public void setTaskName(String taskName) {
