@@ -6,6 +6,9 @@ import java.util.Random;
  * @author MDH
  * 2020/10/20 22:24
  *
+ * JVM参数配置
+ * -Xms10m -Xmx10m -XX:+PrintGCDetails -XX:MaxDirectMemorySize=5m
+ *
  * Exception in thread "main" java.lang.OutOfMemoryError: Java heap space
  * 对象创建太多或者大对象,导致堆内存不足
  * byte[] byte = new byte[80 * 1024 * 1024]; 80MB

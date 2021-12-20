@@ -80,6 +80,19 @@ public class LRUCacheDemoTwo {
         public Node getLast() {
             return tail.prev;
         }
+
+        /**
+         * 6.获得第一个节点
+         * @return Node
+         */
+        public Node getFast() {
+            return head.next;
+        }
+
+        public Node getHead() {
+            return head;
+        }
+
     }
 
     private int cacheSize;
@@ -144,20 +157,45 @@ public class LRUCacheDemoTwo {
         lruCacheDemo.put(2,2);
         lruCacheDemo.put(3,3);
         System.out.println(lruCacheDemo.map.keySet());
+        System.out.println(lruCacheDemo.doubleLinkedList.getLast().key);
+        System.out.println(lruCacheDemo.doubleLinkedList.getFast().key);
+        System.out.println(lruCacheDemo.doubleLinkedList.getHead().key);
+        System.out.println("---1---");
 
         lruCacheDemo.put(4,1);
         System.out.println(lruCacheDemo.map.keySet());
+        System.out.println(lruCacheDemo.doubleLinkedList.getLast().key);
+        System.out.println(lruCacheDemo.doubleLinkedList.getFast().key);
+        System.out.println("---2---");
 
         lruCacheDemo.put(3,1);
         System.out.println(lruCacheDemo.map.keySet());
+        System.out.println(lruCacheDemo.doubleLinkedList.getLast().key);
+        System.out.println(lruCacheDemo.doubleLinkedList.getFast().key);
+        System.out.println("---3---");
+
         lruCacheDemo.put(3,1);
         System.out.println(lruCacheDemo.map.keySet());
+        System.out.println(lruCacheDemo.doubleLinkedList.getLast().key);
+        System.out.println(lruCacheDemo.doubleLinkedList.getFast().key);
+        System.out.println("---4---");
+
         lruCacheDemo.put(3,1);
         System.out.println(lruCacheDemo.map.keySet());
+        System.out.println(lruCacheDemo.doubleLinkedList.getLast().key);
+        System.out.println(lruCacheDemo.doubleLinkedList.getFast().key);
+        System.out.println("---5---");
+
         lruCacheDemo.put(5,1);
         System.out.println(lruCacheDemo.map.keySet());
+        System.out.println(lruCacheDemo.doubleLinkedList.getLast().key);
+        System.out.println(lruCacheDemo.doubleLinkedList.getFast().key);
+        System.out.println("---6---");
+
         lruCacheDemo.put(6,2);
         System.out.println(lruCacheDemo.map.keySet());
+        System.out.println(lruCacheDemo.doubleLinkedList.getLast().key);
+        System.out.println(lruCacheDemo.doubleLinkedList.getFast().key);
     }
 
 }
