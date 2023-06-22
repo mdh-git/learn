@@ -41,4 +41,16 @@ public class ObjectHeaderCode {
         System.out.println(ClassLayout.parseInstance(object).toPrintable());
     }
 
+    public synchronized void method(){
+        // 方法体
+    }
+    public static synchronized void staticMethod(){
+        // 方法体
+    }
+
+    public void method1(){
+        synchronized (this){
+            // 代码块
+        }
+    }
 }
