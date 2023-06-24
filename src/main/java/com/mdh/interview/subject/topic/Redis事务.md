@@ -162,3 +162,33 @@ info memory
 当redis存满的时候，再写数据会报OOM
 (error) OOM command not allowed when used memory > 'maxmemory'
 ~~~
+
+## watchDog 使用
+~~~
+watchDog 只有在未显示指定加锁时间时才会生效。
+watch dog 在当前节点存活时每10s给分布式锁的key续期 30s；
+
+
+因为无论在释放锁的时候，是否出现异常，都会执行释放锁的回调函数，把看门狗停了
+有没有设想过一种场景？服务器宕机了？
+其实这也没关系，首先获取锁和释放锁的逻辑都是在一台服务器上，那看门狗的续约也就没有了，redis中只有一个看门狗上次重置了30秒的key，
+时间到了key也就自然删除了，那么其他服务器，只需要等待redis自动删除这个key就好了，也就不存在死锁了
+
+
+lockWatchdogTimeout（监控锁的看门狗超时，单位：毫秒）
+默认值：30000
+
+监控锁的看门狗超时时间单位为毫秒。
+该参数只适用于分布式锁的加锁请求中未明确使用leaseTimeout参数的情况。
+如果该看门狗未使用lockWatchdogTimeout去重新调整一个分布式锁的lockWatchdogTimeout超时，那么这个锁将变为失效状态。
+这个参数可以用来避免由Redisson客户端节点宕机或其他原因造成死锁的情况。
+
+1.要使 watchLog机制生效 ，lock时 不要设置 过期时间
+2.watchlog的延时时间 可以由 lockWatchdogTimeout指定默认延时时间，但是不要设置太小。如100
+3.watchdog 会每 lockWatchdogTimeout/3时间，去延时。
+4.watchdog 通过 类似netty的 Future功能来实现异步延时
+5.watchdog 最终还是通过 lua脚本来进行延时
+
+https://blog.csdn.net/weixin_51146329/article/details/129612350
+https://blog.csdn.net/justlpf/article/details/130677262
+~~~
