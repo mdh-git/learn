@@ -10,5 +10,6 @@ public class Test {
         handler1.setNextHandler(handler2);
 
         handler.transformStr("adbc");
+        System.out.println("责任链");
     }
 }
