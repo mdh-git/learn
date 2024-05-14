@@ -36,6 +36,8 @@ public class Test {
         System.out.println(nextHashCode.getAndAdd(HASH_INCREMENT));
 
         System.out.println("验证11111");
+
+        System.out.println("验证222222");
     }
 
 
