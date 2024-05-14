@@ -47,6 +47,9 @@ public class Test {
 
         String len = "测试被保险人手机号002";
         System.out.println(len.length());
+
+
+        System.out.println("验证");
     }
 
 
