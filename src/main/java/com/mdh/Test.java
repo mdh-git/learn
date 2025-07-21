@@ -1,8 +1,10 @@
 package com.mdh;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import com.alibaba.fastjson.JSON;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import umontreal.ssj.functionfit.BSpline;
 
 /**
  * Created by madonghao on 2018/9/12.
@@ -22,24 +24,78 @@ public class Test {
         return true;
     }
 
+
+
     public static void main(String[] args) {
-//        Integer categoryId = 1234;
-//        String JD_categoryId = "1234";
-//        System.out.println(JD_categoryId.equals(String.valueOf(categoryId)));
+
+        demo1();
+        //demo2();
 
 
-        AtomicInteger nextHashCode = new AtomicInteger();
+    }
 
-        int HASH_INCREMENT = 0x61c88647;
-        System.out.println(HASH_INCREMENT);
-        System.out.println(nextHashCode.getAndAdd(HASH_INCREMENT));
-        System.out.println(nextHashCode.getAndAdd(HASH_INCREMENT));
+    private static void demo1() {
 
-        System.out.println("验证11111");
+        // 定义数据点
+        double[] x = {-1,0,1, 2, 3, 4, 5};
+        double[] y = {1,0,1, 4, 9, 16, 25};
 
-        System.out.println("验证222222");
+        int degree = x.length > 3 ? 3 : 2;
 
-        System.out.println("验证3333333");
+        BSpline approxBSpline = BSpline.createInterpBSpline(x, y, degree);
+
+        double derivative = approxBSpline.derivative(3);
+        System.out.println(derivative);
+
+        double i3 = approxBSpline.evaluate(3);
+        System.out.println(i3);
+
+        double i4 = approxBSpline.evaluate(4);
+        System.out.println(i4);
+
+        double i25 = approxBSpline.evaluate(2.5);
+        System.out.println(i25);
+
+        double i20 = approxBSpline.evaluate(2);
+        System.out.println(i20);
+
+        double i21 = approxBSpline.evaluate(2.1);
+        System.out.println(i21);
+
+
+        double i22 = approxBSpline.evaluate(2.2);
+        System.out.println(i22);
+
+        double[] knots = approxBSpline.getKnots();
+
+        double[] x1 = approxBSpline.getX();
+        double[] y1 = approxBSpline.getY();
+
+        System.out.println(JSON.toJSONString(knots));
+        System.out.println(JSON.toJSONString(x1));
+        System.out.println(JSON.toJSONString(y1));
+
+    }
+
+
+    private static void demo2() {
+
+        // 定义数据点
+        double[] x = {0,1,2,1,0};
+        double[] y = {2,3,2,2,0};
+
+        int degree = x.length > 3 ? 3 : 2;
+
+        BSpline approxBSpline = BSpline.createInterpBSpline(x, y, degree);
+
+        double derivative = approxBSpline.derivative(3);
+        System.out.println(derivative);
+
+        double i3 = approxBSpline.evaluate(2);
+        System.out.println(i3);
+
+        double i4 = approxBSpline.evaluate(1);
+        System.out.println(i4);
     }
 
 
