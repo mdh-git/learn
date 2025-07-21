@@ -1,0 +1,18 @@
+数据的淘汰策略
+
+当Redis中内存不够时，此时向Redis中添加新的key时，Redis会根据淘汰策略来决定删除哪些key。
+
+Redis提供了8种淘汰策略：
+1.noeviction：当内存不足以容纳新写入数据时，新写入操作会报错，不淘汰key（默认的策略）。
+2.volatile-ttl：对设置了TTL的key，比较key剩余的TTL值，TTL越小越优先淘汰。
+3.allkeys-random：对全部的key，随机选择淘汰。
+4.volatile-random：对于设置了TTL的key，随机选择淘汰。
+5.allkeys-lru：对全部的key，基于LRU算法淘汰。 （业务上较多的场景）
+6.volatile-lru：对于设置了TTL的key，基于LRU算法淘汰。
+7.allkeys-lfu：对全部的key，基于LFU算法淘汰。
+8.volatile-lfu：对于设置了TTL的key，基于LFU算法淘汰。
+
+LRU（Last Recently Used） 最近最少使用，当前时间减去最后一次访问时间，这个值越大则淘汰优先级越高
+LFU（Least Frequently Used） 最少频率使用，最不经常使用，访问次数越少，越优先淘汰
+
+redis中的lru算法

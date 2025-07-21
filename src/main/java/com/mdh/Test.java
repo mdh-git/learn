@@ -1,8 +1,10 @@
 package com.mdh;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import com.alibaba.fastjson.JSON;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import umontreal.ssj.functionfit.BSpline;
 
 /**
  * Created by madonghao on 2018/9/12.
@@ -22,40 +24,78 @@ public class Test {
         return true;
     }
 
-    public static void main(String[] args) {
-        String str = "10000元X4座";
-        String str1 = str.split("X")[0];
-        String str2 = str.split("X")[1];
-        System.out.println(str1.replaceAll("元",""));
-        System.out.println(str2.replaceAll("座",""));
-        //{"value":1000000,"key":"4"}
-        StringBuffer sb = new StringBuffer("{\"value\":")
-                .append(str1.replaceAll("元",""))
-                .append(",\"key\":\"")
-                .append(str2.replaceAll("座",""))
-                .append("\"}");
-        //System.out.println(sb.toString());
 
-        String str3 = "国产";
-        String str4 = "进口";
-        if(str3.indexOf("国产") != -1 ) {
-            System.out.println("国产 啊哈哈");
+
+        public static void main(String[] args) {
+
+            demo1();
+            //demo2();
+
+
         }
 
-        if(str4.indexOf("进口") != -1 ) {
-            System.out.println("进口 啊哈哈");
-        }
+    private static void demo1() {
 
-        String len = "测试被保险人手机号002";
-        System.out.println(len.length());
+        // 定义数据点
+        double[] x = {-1,0,1, 2, 3, 4, 5};
+        double[] y = {1,0,1, 4, 9, 16, 25};
+
+        int degree = x.length > 3 ? 3 : 2;
+
+        BSpline approxBSpline = BSpline.createInterpBSpline(x, y, degree);
+
+        double derivative = approxBSpline.derivative(3);
+        System.out.println(derivative);
+
+        double i3 = approxBSpline.evaluate(3);
+        System.out.println(i3);
+
+        double i4 = approxBSpline.evaluate(4);
+        System.out.println(i4);
+
+        double i25 = approxBSpline.evaluate(2.5);
+        System.out.println(i25);
+
+        double i20 = approxBSpline.evaluate(2);
+        System.out.println(i20);
+
+        double i21 = approxBSpline.evaluate(2.1);
+        System.out.println(i21);
 
 
-        System.out.println("验证");
-        System.out.println("验证11111");
+        double i22 = approxBSpline.evaluate(2.2);
+        System.out.println(i22);
 
-        System.out.println("验证222222");
+        double[] knots = approxBSpline.getKnots();
 
-        System.out.println("验证3333333");
+        double[] x1 = approxBSpline.getX();
+        double[] y1 = approxBSpline.getY();
+
+        System.out.println(JSON.toJSONString(knots));
+        System.out.println(JSON.toJSONString(x1));
+        System.out.println(JSON.toJSONString(y1));
+
+    }
+
+
+    private static void demo2() {
+
+        // 定义数据点
+        double[] x = {0,1,2,1,0};
+        double[] y = {2,3,2,2,0};
+
+        int degree = x.length > 3 ? 3 : 2;
+
+        BSpline approxBSpline = BSpline.createInterpBSpline(x, y, degree);
+
+        double derivative = approxBSpline.derivative(3);
+        System.out.println(derivative);
+
+        double i3 = approxBSpline.evaluate(2);
+        System.out.println(i3);
+
+        double i4 = approxBSpline.evaluate(1);
+        System.out.println(i4);
     }
 
 
