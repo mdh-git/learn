@@ -16,3 +16,4 @@ LRU（Last Recently Used） 最近最少使用，当前时间减去最后一次�
 LFU（Least Frequently Used） 最少频率使用，最不经常使用，访问次数越少，越优先淘汰
 
 redis中的lru算法
+优化
