@@ -51,3 +51,101 @@ slavof host port  设置当前slave对应的master
 (4) 哨兵模式（投票选举）
     最常用，添加(touch)    sentinel.conf
     编辑(vi)  sentinel.conf  加入  sentinel monitor (自定义的名字)  master的host  port  1(投票最多的)
+
+
+
+主从数据同步原理： 参考：https://blog.csdn.net/weixin_44275670/article/details/149151848
+    1.主从全量同步
+        Replication Id:简称replId，是数据集的标记，id一致则说明是同一数据集。每一个master都有一个replId，slave则会继承master节点的replId。
+        offset：偏移量，随着记录在repl_backLog中的数据增多而逐渐增大。slave完成同步时也会记录当前同步的offset。
+        如果slave的offset小于master的offset，说明slave数据落后于master，需要更新。
+
+    步骤：
+        1.slave执行replicaof命令，连接链接到master。
+        2.请求同步数据（带上 replId、offset）。
+        3.master 判断是否是第一次同步（判断replId是否一致：不一致证明是全新的slave，要做全量同步）。
+        4.master 是第一次，返回master的数据版本信息（replId、offset）。
+        5.slave 保存接收master版本信息。
+        6.master 执行bgsave，生成RDB文件。
+        7.master 将RDB文件发送给slave。
+        8.slave 清空本地数据，加载RDB文件。
+        9.master 记录RDB期间的所有新的命令。
+        10.master 发送repl_backLog中的命令。
+        11.slave 执行接收repl_backLog中的命令。
+
+    2.主从增量同步（slave重启或后期数据变化）
+        1.slave 重启。
+        2.slave psync replId offset 到master。
+        3.master 判断请求replId是否一致。
+        4.master 不是第一次，返回continue。
+        5.master 去repl_bakLog中获取offset后的数据。
+        6.master 发送offset后的命令。
+        7.slave 执行offset后的命令。
+
+repl_backlog原理：
+    repl_baklog文件是一个固定大小的数组，只不过数组是环形，也就是说角标到达数组末尾后，会再次从0开始读写，这样数组头部的数据就会被覆盖。
+
+
+
+
+主从同步优化
+    主从同步可以保证主从数据的一致性，非常重要。
+
+可以从以下几个方面来优化Redis主从就集群：
+    在master中配置repl-diskless-sync yes启用无磁盘复制，避免全量同步时的磁盘IO。
+    Redis单节点上的内存占用不要太大，减少RDB导致的过多磁盘IO
+    适当提高repl_baklog的大小，发现slave宕机时尽快实现故障恢复，尽可能避免全量同步
+    限制一个master上的slave节点数量，如果实在是太多slave，则可以采用主-从-从链式结构，减少master压力
+
+
+全量同步和增量同步区别？
+    全量同步：master将完整内存数据生成RDB，发送RDB到slave。后续命令则记录在repl_baklog，逐个发送给slave。
+    增量同步：slave提交自己的offset到master，master获取repl_baklog中从offset之后的命令给slave
+
+什么时候执行全量同步？
+    slave节点第一次连接master节点时
+    slave节点断开时间太久，repl_baklog中的offset已经被覆盖时
+什么时候执行增量同步？
+    slave节点断开又恢复，并且在repl_baklog中能找到offset时
+
+
+
+
+主从复制保证不了集群的高可用
+redis提供了哨兵（Sentinel）机制来实现主从集群的自动故障恢复。（https://blog.csdn.net/weixin_44275670/article/details/149170338?spm=1001.2101.3001.10796）
+
+哨兵模式下，主从集群由至少三个哨兵节点（redis节点）组成的集群
+    监控：Sentinel会不断检查redis集群的master和slave是否正常工作，并实时通知其他Sentinel节点。
+    自动故障恢复：如果master故障，Sentinel会将一个slave提升为master。当故障回复后也以新的master为主。
+    通知：Sentinel充当Redis客户端的服务发现来源，当集群发生故障转移时，会将最新信息推给Redis的客户端。
+
+
+集群监控原理
+    Sentinel基于心跳机制监测服务状态，每隔1秒向集群的每个实例发送ping命令：
+        •主观下线：如果某sentinel节点发现某实例未在规定时间响应，则认为该实例主观下线。
+        •客观下线：若超过指定数量（quorum）的sentinel都认为该实例主观下线，则该实例客观下线。quorum值最好超过Sentinel实例数量的一半。
+
+一旦发现master故障，sentinel需要在salve中选择一个作为新的master，选择依据是这样的：
+    首先会判断slave节点与master节点断开时间长短，如果超过指定值（down-after-milliseconds * 10）则会排除该slave节点
+    然后判断slave节点的slave-priority值，越小优先级越高，如果是0则永不参与选举
+    如果slave-prority一样，则判断slave节点的offset值，越大说明数据越新，优先级越高
+    最后是判断slave节点的运行id大小，越小优先级越高。
+
+
+redis集群（哨兵模式）脑裂问题
+    集群脑裂是由于主节点、从节点和Sentinel哨兵节点处于不同的网络分区，是得Sentinel哨兵没有能够心跳感知到主节点，所以通过选举的方式提升了一个节点为主，这样就有了两个master，这样
+    会导致客户端还在老的主节点那里写入数据，新的节点无法同步数据，当网络回复后，Sentinel哨兵会将老的主节点将为从节点，这样再从新的master同步数据，就会导致数据丢失。
+
+    解决方法：修改redis的配置
+        min-replicas-to-write 1  最少的salve节点为1个
+        min-replicas-max-lag 5  数据复制和同步的延迟不能超过5s
+        设置最少的从节点数据量一级缩短主从数据同步的延迟时间，达不到要求就拒绝请求，就可以避免大量的数据丢失。
+
+
+
+redis 单点 or 集群
+
+    Redis单节点： 写操作并发8W，读操作10W
+
+    主从（1主1从）+ 哨兵
+        单节点不超过10G内存，如果Redis内存不足则可以给不同的服务分配独立的Redis主从节点（多套Redis集群）
