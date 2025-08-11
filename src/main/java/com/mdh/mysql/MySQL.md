@@ -31,8 +31,14 @@ MyISAM是MySQL的默认数据库引擎（5.5版之前）。虽然性能极佳，
 1.是否支持行级锁 : MyISAM 只有表级锁(table-level locking)，而InnoDB 支持行级锁(row-level locking)和表级锁,默认为行级锁。
 2.是否支持事务和崩溃后的安全恢复： MyISAM 强调的是性能，每次查询具有原子性,其执行速度比InnoDB类型更快，但是不提供事务支持。但是InnoDB 提供事务支持，外部键等高级数据库功能。 具有事务(commit)、回滚(rollback)和崩溃修复能力(crash recovery capabilities)的事务安全(transaction-safe (ACID compliant))型表。
 3.是否支持外键： MyISAM不支持，而InnoDB支持。
-4.是否支持MVCC ：仅 InnoDB 支持。应对高并发事务, MVCC比单纯的加锁更高效;MVCC只在 READ COMMITTED 和 REPEATABLE READ 两个隔离级别下工作;MVCC可以使用 乐观(optimistic)锁 和 悲观(pessimistic)锁来实现;各数据库中MVCC实现并不统一。推荐阅读：MySQL-InnoDB-MVCC多版本并发控制
-
+4.是否支持MVCC ：仅 InnoDB 支持。
+    应对高并发事务, MVCC比单纯的加锁更高效;
+    MVCC只在 READ COMMITTED 和 REPEATABLE READ 两个隔离级别下工作;
+    MVCC可以使用 乐观(optimistic)锁 和 悲观(pessimistic)锁来实现;
+    各数据库中MVCC实现并不统一。
+5.InnoDB是聚集索引，数据文件和索引绑定在一起的，必须要有主键，通过主键检索效率很高。辅助索引需要两次查询，先查询到主键，然后通过主键查询到数据。
+  MyISAM是非聚集索引，数据文件和索引分开存储的，索引保存的是数据文件的指针，主键索引和辅助索引是独立的。
+6.InnoDB不支持全文索引，而MyISAM支持全文索引。
 ~~~
 
 ## 索引
@@ -83,6 +89,13 @@ READ-UNCOMMITTED(读取未提交)： 最低的隔离级别，允许读取尚未�
 READ-COMMITTED(读取已提交)： 允许读取并发事务已经提交的数据，可以阻止脏读，但是幻读或不可重复读仍有可能发生。
 REPEATABLE-READ(可重复读)： 对同一字段的多次读取结果都是一致的，除非数据是被本身事务自己所修改，可以阻止脏读和不可重复读，但幻读仍有可能发生。
 SERIALIZABLE(可串行化)： 最高的隔离级别，完全服从ACID的隔离级别。所有的事务依次逐个执行，这样事务之间就完全不可能产生干扰，也就是说，该级别可以防止脏读、不可重复读以及幻读。
+
+
+隔离级别                脏读   不可重复读   幻影读
+READ-UNCOMMITTED       √        √        √
+READ-COMMITTED         ×        √        √
+REPEATABLE-READ        ×        ×        √
+SERIALIZABLE           ×        ×        ×
 ~~~
 
 ## MySQL InnoDB
@@ -200,6 +213,58 @@ https://mp.weixin.qq.com/s?__biz=Mzg2OTA0Njk0OA==&mid=2247485117&idx=1&sn=923617
     •外键会影响父表和子表的写操作从而降低性能
 ~~~
 
+## SQL优化手段
+~~~
+1、查询语句中不要使用select *
+2、尽量减少子查询，使用关联查询（left join,right join,inner join）替代
+3、减少使用IN或者NOT IN ,使用exists，not exists或者关联查询语句替代
+4、or 的查询尽量用 union或者union all 代替(在确认没有重复数据或者不用剔除重复数据时，union all会更好)
+5、应尽量避免在 where 子句中使用!=或<>操作符，否则将引擎放弃使用索引而进行全表扫描。
+6、应尽量避免在 where 子句中对字段进行 null 值判断，否则将导致引擎放弃使用索引而进行全表扫描，
+    如： select id from t where num is null 可以在num上设置默认值0，确保表中num列没有null值，然后这样查询： select id from t where num=0
+~~~
+
+## 使用索引的注意事项
+~~~
+1.应尽量避免在 where 子句中使用 ！=或<>操作符，否则将导致引擎放弃使用索引而进行全表扫描。优化器将无法通过索引来确定将要命中的行数，因此需要搜索该表的所有行。
+2.应尽量避免在 where 子句中使用 OR 来连接条件，否则将导致引擎放弃使用索引而进行全表扫描。如 select * from table_name where num=10 or num=20。
+3.应尽量避免在 where 子句中对字段进行表达式操作，这将导致引擎放弃使用索引而进行全表扫描。如 select * from table_name where num/2=10。
+4.应尽量避免在 where 子句中对字段进行函数操作，这将导致引擎放弃使用索引而进行全表扫描。如 select * from table_name where substring(column_name,1,3)=’abc’。
+5.不要在 where 子句中的 = 左边进行函数、算术运算或者其他表达式运算，否则系统可能无法正确使用索引。  SELECT * FROM users WHERE age + 10 = 30;
+6.复合索引遵循最左前缀原则
+7.如果 Mysql评估使用索引比全表扫描更慢，会放弃使用索引。如果此时想要用索引，可以在语句中添加强制索引。
+        强制使用索引：SELECT * FROM users FORCE INDEX (idx_age) WHERE age > 25;
+        建议使用复合索引：SELECT * FROM users USE INDEX (idx_name_age) WHERE name LIKE '张%' AND age > 30;
+        忽略主键索引：SELECT * FROM users IGNORE INDEX (PRIMARY) WHERE id > 1000 AND age < 40;
+8.列类型是字符串类型，查询时一定是要给值加引号，否则索引失败。
+9.like 查询，% 不能再前，因为无法使用索引。如果需要模糊匹配，可以使用全文索引。
+10. 表字段为null 也是不可以使用索引的。（可以将null值设置为0）
+
+运算类型	              索引是否失效	           示例
+列在运算符左侧	             是	              WHERE age + 10 > 30
+列在运算符右侧	             否	              WHERE age > 30 - 10
+对列使用函数	             是	              WHERE YEAR(date) = 2023
+对值使用函数	             否	              WHERE date = DATE_ADD(NOW(), INTERVAL 1 DAY)
+隐式类型转换	             是	              WHERE varchar_col = 123
+
+~~~
+
+## 大表优化
+~~~
+1. 限定数据的范围
+    务必禁止不带任何限制数据范围条件的查询语句。比如：我们当用户在查询订单历史的时候，我们可以控制在一个月的范围内；
+2. 读/写分离
+    经典的数据库拆分方案，主库负责写，从库负责读；
+3. 垂直分区
+    根据数据库里面数据表的相关性进行拆分。 例如，用户表中既有用户的登录信息又有用户的基本信息，可以将用户表拆分成两个单独的表，甚至放到单独的库做分库。
+    
+    垂直拆分是指数据表列的拆分，把一张列比较多的表拆分为多张表。
+    垂直拆分的优点： 可以使得列数据变小，在查询时减少读取的Block数，减少I/O次数。此外，垂直分区可以简化表的结构，易于维护。
+    垂直拆分的缺点： 主键会出现冗余，需要管理冗余列，并会引起Join操作，可以通过在应用层进行Join来解决。此外，垂直分区会让事务变得更加复杂。
+4. 水平分区
+    保持数据表结构不变，通过某种策略存储数据分片。这样每一片数据分散到不同的表或者库中，达到了分布式的目的。 水平拆分可以支撑非常大的数据量。
+~~~
+
 ## 一条SQL语句执行得很慢的原因有哪些？
 ~~~
 https://mp.weixin.qq.com/s?__biz=Mzg2OTA0Njk0OA==&mid=2247485185&idx=1&sn=66ef08b4ab6af5757792223a83fc0d45&chksm=cea248caf9d5c1dc72ec8a281ec16aa3ec3e8066dbb252e27362438a26c33fbe842b0e0adf47&token=79317275&lang=zh_CN#rd
@@ -228,4 +293,94 @@ https://mp.weixin.qq.com/s?__biz=Mzg2OTA0Njk0OA==&mid=2247485185&idx=1&sn=66ef08
 2、这条 SQL 语句一直执行的很慢，则有如下原因。
     (1)、没有用上索引：例如该字段没有索引；由于对字段进行运算、函数操作导致无法用索引。
     (2)、数据库选错了索引。
+~~~
+
+## MySQL 中一条查询 SQL 是如何执行的？
+~~~
+1.获取连接
+2.查询缓存（8.0之后的版本被移除）
+3.分析器：分为词法分析和语法分析。
+4.优化器：多个索引中选择合适的索引、存在多张表关联join时，决定表的链接顺序
+5.执行器：判断是否具备此权限，没有返回错误。有权限则去引擎接口查询数据。
+6.返回结果
+~~~
+
+## MySQL 行锁实现机制
+~~~
+MySQL 的行锁是在存储引擎层面实现的，不同存储引擎的行锁实现方式有所不同，主要分为 InnoDB 和 MyISAM（MyISAM 只支持表锁）。
+
+InnoDB 行锁实现
+InnoDB 是 MySQL 最常用的支持行锁的存储引擎，其行锁实现机制如下：
+
+1. 锁类型
+    InnoDB 实现了两种标准的行级锁：
+        共享锁 (S锁)：允许事务读取一行数据    
+            select * from table_name where condition lock in share mode;
+        排他锁 (X锁)：允许事务更新或删除一行数据
+            select * from table_name where condition for update;
+
+2. 锁的实现方式
+    InnoDB 行锁是通过对索引记录加锁实现的，主要实现方式：
+
+        记录锁 (Record Lock)：锁定索引中的单条记录
+        间隙锁 (Gap Lock)：锁定索引记录之间的间隙，防止其他事务插入
+        临键锁 (Next-Key Lock)：记录锁+间隙锁的组合，锁定记录及前面的间隙
+        插入意向锁 (Insert Intention Lock)：插入操作使用的特殊间隙锁
+        
+3. 行锁的实现基础
+    InnoDB 行锁是基于索引实现的：
+        如果查询使用了主键索引，会直接在主键索引上加锁
+        如果使用了二级索引，会先在二级索引上加锁，然后再到主键索引上加锁
+        没有使用索引的查询会导致表锁（实际是锁住所有行）
+
+4. 锁的算法
+    等值查询：
+        使用唯一索引：退化为记录锁
+        使用非唯一索引：使用临键锁
+    范围查询：总是使用临键锁
+
+行锁示例
+1. 基本行锁示例
+        -- 事务1
+        START TRANSACTION;
+        SELECT * FROM accounts WHERE id = 1 FOR UPDATE; -- 对id=1的记录加X锁
+        
+        -- 事务2 (会被阻塞)
+        START TRANSACTION;
+        SELECT * FROM accounts WHERE id = 1 FOR UPDATE; -- 等待事务1释放锁
+2. 间隙锁示例
+        -- 假设accounts表有id为1,5,10的记录
+        START TRANSACTION;
+        SELECT * FROM accounts WHERE id BETWEEN 5 AND 10 FOR UPDATE;
+        -- 不仅锁住id=5和10的记录，还会锁住(5,10)之间的间隙
+
+查看行锁信息
+    查看当前锁情况
+    SHOW ENGINE INNODB STATUS;
+
+    性能库中查看锁信息(MySQL 5.7+)
+    SELECT * FROM performance_schema.data_locks;
+    SELECT * FROM performance_schema.data_lock_waits;
+    
+    
+行锁优化建议
+    尽量使用索引：没有索引会导致锁表
+    控制事务大小：大事务会增加锁持有时间
+    合理设计索引：减少锁的范围
+    避免长事务：尽快提交或回滚事务
+    使用较低的隔离级别：如READ COMMITTED可减少间隙锁使用
+    
+不同隔离级别的锁行为
+    READ UNCOMMITTED（读未提交）：不加锁
+    READ COMMITTED（读已提交）：使用记录锁，无间隙锁
+    REPEATABLE READ（可重复度，默认）：使用临键锁
+    SERIALIZABLE（串行化）：所有查询自动加共享锁
+
+死锁处理
+    InnoDB 能自动检测死锁并回滚其中一个事务：
+        查看最近死锁信息
+        SHOW ENGINE INNODB STATUS;
+
+        查看死锁日志(MySQL 8.0+)
+        SELECT * FROM performance_schema.events_transactions_current;
 ~~~
