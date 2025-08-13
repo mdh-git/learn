@@ -1,6 +1,8 @@
 package com.mdh.algorithm.LeetCode.simple;
 
-import org.springframework.util.StringUtils;
+//import org.springframework.util.StringUtils;
+
+import cn.hutool.core.util.StrUtil;
 
 import java.util.Stack;
 
@@ -37,7 +39,7 @@ public class ValidBrackets {
     }
 
     public static boolean isValid1(String s) {
-        if(StringUtils.isEmpty(s)){
+        if(StrUtil.isEmpty(s)){
             return false;
         }
         if(s.length() % 2 == 1){
@@ -107,7 +109,7 @@ public class ValidBrackets {
 
 
     public static boolean isValid2(String s) {
-        if(StringUtils.isEmpty(s)){
+        if(StrUtil.isEmpty(s)){
             return false;
         }
         // 当字符串长度为奇数的时候，属于无效情况

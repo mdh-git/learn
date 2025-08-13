@@ -34,6 +34,26 @@ MVCC（Mutil Version Concurrency Control）多版本并发控制，是一种并�
       比如：select * from t_user where id=1;在MVCC中的查询都是快照度。
 ~~~
 
+### undo log 和 redo log
+~~~
+redo log：记录的是数据页的物理修改，服务宕机可用来同步数据。
+        保证了事务的持久性。
+undo log：记录的是逻辑日志，当事务回滚时，通过逆操作恢复原来的数据。
+        保证了事务的一致性和原子性。
+~~~
+
+~~~
+
+update
+delete              -----commit------>            缓冲池
+                                              buffer pool             内存结构
+
+
+                                             xxx.idb文件              磁盘结构
+
+
+~~~
+
 
 ## MVCC实现、原理
 ~~~
@@ -45,7 +65,7 @@ MySQL中，在每一行记录中除了自定义的字段，还有一些隐藏字
     trx_id：事务ID记录了新增/最近修改这条记录的事务id，事务id是自增的。
     roll_pointer：回滚指针指向当前记录的上一个版本（在 undo log 中）。
     
-2、版本链
+2、undo log 版本链
     在修改数据的时候，会向 redo log 中记录修改的页内容（为了在数据库宕机重启后恢复对数据库的操作），也会向 undo log 记录数据原来的快照（用于回滚事务）。
     undo log有两个作用，除了用于回滚事务，还用于实现MVCC。
     
