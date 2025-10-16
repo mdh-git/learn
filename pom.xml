@@ -28,6 +28,18 @@
         <commons-logging.version>1.2</commons-logging.version>
     </properties>
 
+    <distributionManagement>
+        <repository>
+            <id>aspose-maven-repository</id>
+            <url>https://releases.aspose.com/java/repo</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </distributionManagement>
+
+
+
     <dependencies>
 
         <dependency>
@@ -239,6 +251,12 @@
             <version>4.9.2</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>transmittable-thread-local</artifactId>
+            <version>2.14.4</version>
+        </dependency>
+
 
         <!-- poi 读取word doc-->
 
@@ -318,6 +336,13 @@
             <version>21.8</version>
         </dependency>
 
+        <!--Spring -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>4.3.14.RELEASE</version>
+        </dependency>
+
 
         <dependency>
             <groupId>org.python</groupId>
@@ -325,5 +350,7 @@
             <version>2.7.0</version>
         </dependency>
     </dependencies>
+
+
 
 </project>
