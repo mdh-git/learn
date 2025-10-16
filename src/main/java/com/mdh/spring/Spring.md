@@ -41,6 +41,15 @@ AspectJ 相比于 Spring AOP 功能更加强大，但是 Spring AOP 相对来说
 
 ## Spring 中的单例 bean 的线程安全问题了解吗？
 ~~~
+不是线程安全的
+Spring框架提供了@Scope朱姐，默认值是singleton，单例的。
+singleton： bean在每个Spring IOC容器中只有一个实例。
+prototype： 一个bean的定义可以有多个实例
+
+一般在Spring的bean中都是注入无状态的对象（比如Service、DAO类），没有现成安全问题，
+如果bean中定义了可修改的成员变量，是要注意线程安全的，可以使用加锁或者多例解决。
+
+
 大部分时候我们并没有在系统中使用多线程，所以很少有人会关注这个问题。
 单例 bean 存在线程问题，主要是因为当多个线程操作同一个对象的时候，对这个对象的非静态成员变量的写操作会存在线程安全问题。
 
@@ -76,6 +85,8 @@ BeanPostProcessor后置处理
 是否实现DisposbaleBean接口
 是否配置有自定义的destory方法
 ~~~
+
+
 
 ##  Spring 框架中用到了哪些？
 ~~~
@@ -127,4 +138,14 @@ https://ershi.blog.csdn.net/article/details/88818418?utm_medium=distribute.pc_re
     Spring提供了InitializingBean和DisposableBean来实现@PostConstruct和@PreDestroy注解相同的效果。
     但是Spring官网不建议使用,手动添加@PostConstruct和@PreDestroy使用
 （5）实现ApplicationContextAware与InitializingBean
+~~~
+
+
+## Spring中的事务
+~~~
+1.编程式事务
+    需使用TransactionTemplate来进行实现，对业务代码有入侵，项目中很少使用
+2.声明式事务
+    建立在AOP之上的，其本质是通过AOP功能，对方法前后进行拦截，将事务处理的功能编织到拦截的方法中，
+    也就是在目标方法开始之前加入一个事务，在执行完目标方法之后根据执行情况提交或者回滚事务。
 ~~~
