@@ -42,7 +42,7 @@ AspectJ 相比于 Spring AOP 功能更加强大，但是 Spring AOP 相对来说
 ## Spring 中的单例 bean 的线程安全问题了解吗？
 ~~~
 不是线程安全的
-Spring框架提供了@Scope朱姐，默认值是singleton，单例的。
+Spring框架提供了@Scope注解，默认值是singleton，单例的。
 singleton： bean在每个Spring IOC容器中只有一个实例。
 prototype： 一个bean的定义可以有多个实例
 
