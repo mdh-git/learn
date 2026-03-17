@@ -1,22 +1,28 @@
 # Spring Cloud
 
-## spring cloud 组件
+## SpringCloud 组件
 ~~~
 1.Eureka：注册中心
-2.Nacos：注册中心、配置中心
-3.Consul：注册中心、配置中心
-4.Spring Cloud Config ：配置中心
-5.Feign/Open Feign:RPC调用
+2.Ribbon： 负载均衡
+3.Spring Cloud Config ：配置中心
+4.Feign/Open Feign:RPC调用
+5.Hystrix： 服务熔断
+6.Zuul/Gateway：服务网关
+7.Spring Cloud Sleuth： 链路追踪
+
+
+~~~
+
+## SpringCloudAlibaba 组件
+~~~
+1.Nacos：注册中心、配置中心
+2.Ribbon： 负载均衡
+3.Feign/Dubbo:RPC调用
+4.Sentinel： 服务熔断
+5.Consul：注册中心、配置中心
 6.Kong：服务网关
-7.Zuul：服务网关
-8.Spring Cloud Gateway：服务网关
-9.Ribbon： 负载均衡
-10.Spring Cloud Sleuth： 链路追踪
-11.Zipkin： 链路追踪
-12.Seata： 分布式事务
-13.Dubbo： RPC调用
-14.Sentinel： 服务熔断
-15.Hystrix： 服务熔断
+7.Zipkin： 链路追踪
+8.Seata： 分布式事务
 ~~~
 
 ## Spring Cloud 和 Dubbo区别？
@@ -51,3 +57,82 @@ Spring Cloud是一个大而全的框架，Dubbo则更侧重于服务调用，所
 2.SOA是一周面向服务的架构，系统的所有服务都注册在总线上，当调用服务时，从总线上查找服务信息，然后调用
 3.微服务是一种更彻底的面向服务的架构，将系统中各个功能个体抽成一个个小的应用程序，基本保持一个应用对应一个服务的架构
 ~~~
+
+## eureka
+~~~
+服务注册:服务提供者需要把自己的信息注册到eureka，由eureka来保存这些信息，比如服务名称、ip、端口等等
+服务发现:消费者向eureka拉取服务列表信息，如果服务提供者有集群，则消费者会利用负载均衡算法，选择一个发起调用
+服务监控:服务提供者会每隔30秒向eureka发送心跳，报告健康状态，如果eureka服务90秒没接收到心跳，从eureka中剔除
+~~~
+
+## Nacos核心模型
+~~~
+A. 服务注册发现模型 (AP + CP 双模式)
+Nacos 的独特之处在于它支持临时实例和持久实例两种模式，分别对应不同的数据一致性协议：
+    1.临时实例 (Ephemeral Instance) - AP 模式
+        场景：大多数微服务实例（如 Kubernetes Pod、弹性伸缩的容器）。
+        机制：客户端通过心跳维持存活。如果心跳停止，Nacos 会自动剔除该实例。
+        协议：使用阿里自研的 Distro 协议。
+            特点：高可用 (Availability) 优先。数据在不同节点间异步复制，不保证强一致性，但保证最终一致性。即使部分节点宕机，服务依然可用。
+            存储：数据仅存在于内存中，不写入数据库。
+    2.持久实例 (Persistent Instance) - CP 模式
+        场景：数据库、核心中间件等不能丢失的服务节点。
+        机制：客户端不需要发送心跳，Nacos 主动探测（TCP/HTTP）。实例下线需手动操作或探测失败。
+        协议：使用 Raft 协议。
+            特点：一致性 (Consistency) 优先。数据写入需要多数派节点确认，保证强一致性。
+            存储：数据会写入内置的 Derby 或外置 MySQL。
+            
+B. 配置管理模型 (长轮询机制)
+Nacos 配置中心之所以能实现“秒级推送”，核心在于长轮询 (Long Polling) 机制：
+    1.客户端发起请求：客户端向 Nacos Server 发起一个 HTTP 请求，询问配置是否有变更。
+    2.服务端挂起：如果配置没有变更，Server 不会立即返回，而是将请求挂起（Hold 住连接），默认等待 30 秒（timeout=30s）。
+    3.变更触发：
+        情况 A：在等待期间，如果有配置发生变更，Server 立即返回变更的 DataID 列表，客户端收到后立刻发起拉取新配置的请求。
+        情况 B：如果 30 秒内无变更，Server 超时返回空响应，客户端随即发起下一轮长轮询。
+    4.优势：相比传统短轮询（每秒请求一次），长轮询极大地减少了无效的网络请求和服务器压力，同时实现了准实时的配置推送。
+    
+~~~
+
+## Nacos支持配置动态刷新，无需重启服务
+~~~
+在 Nacos 控制台修改并发布配置后，所有订阅了该配置的微服务实例会在秒级（通常 1-3 秒内）自动感知变更，并更新内存中的配置值。
+
+使用@RefreshScope,加在使用配置值的Bean类上（通常是 Controller 或 Service）
+原理：当 Nacos 推送配置变更时，Spring 会销毁被 @RefreshScope 标记的 Bean，并在下次请求时重新创建该 Bean，从而注入最新的配置值。
+
+
+如果不加 @RefreshScope 会怎样？
+    1.配置依然会被加载到 Spring 环境中。
+    2.但是，已经初始化过的 Bean 中的 @Value 字段不会更新。
+    3.只有那些在配置变更后新创建的 Bean 才能拿到新值。对于单例的 Controller/Service，这意味着旧值会一直存在，直到你重启服务。
+
+配置会自动刷新？
+    1.使用 @Value("${...}") 注入到加了 @RefreshScope 的类中的字段。
+    2.使用 @ConfigurationProperties 注解的类（不需要加 @RefreshScope，Spring Cloud 原生支持其自动刷新）。
+
+理论上是秒级。Nacos 客户端默认长轮询超时时间是 30 秒，但一旦服务端有变更，会立即响应，通常在 1 秒内完成推送和应用刷新。
+
+
+@Component
+@ConfigurationProperties(prefix = "my.config") // 自动映射前缀
+// 不需要 @RefreshScope，原生支持动态刷新
+public class MyConfigProperties {
+    private int timeout;
+    private String featureFlag;
+    // getter/setter ...
+}
+~~~
+
+## Nacos与eureka
+~~~
+Nacos与eureka的共同点(注册中心)
+    1.都支持服务注册和服务拉取
+    2.都支持服务提供者心跳方式做健康检测
+Nacos与Eureka的区别(注册中心)
+    1.Nacos支持服务端主动检测提供者状态:临时实例采用心跳模式，非临时实例采用主动检测模式
+    2.临时实例心跳不正常会被剔除，非临时实例则不会被剔除
+    3.Nacos支持服务列表变更的消息推送模式，服务列表更新更及时
+    4.Nacos集群默认采用AP方式，当集群中存在非临时实例时，采用CP模式;Eureka采用AP方式
+Nacos还支持了配置中心，eureka则只有注册中心，也是选择使用nacos的一个重要原因
+~~~
+
