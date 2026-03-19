@@ -141,6 +141,4 @@ rabbitTemplate.convertAndSend("ttl.direct", "ttl", message, correlationData);
     与镜像队列一样，都是主从模式，支持主从数据同步，主从同步基于Raft协议，强一致，
     并且使用起来非常简单，不需要额外的配置，在声明队列的时候只要指定这个是仲裁队列即可
 
-
-    
 ~~~
