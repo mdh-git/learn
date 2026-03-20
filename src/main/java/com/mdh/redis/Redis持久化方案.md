@@ -1,4 +1,18 @@
-1、 Rdb 方式（Redis DataBase）
+# Redis 持久化
+
+
+## 持久化
+~~~
+RDB全称Redis Database Backup file(Redis数据备份文件)，也被叫做Redis数据快照。
+简单来说就是把内存中的所有数据都记录到磁盘中。当Redis实例故障重启后，从磁盘读取快照文件，恢复数据
+
+手动备份方式
+save     #由Redis主进程来执行RDB，会阻塞所有命令
+bgsave   #开启子进程执行RDB，避免主进程受到影响
+~~~
+
+## 1、 Rdb 方式（Redis DataBase）
+~~~
 Redis 默认的方式，redis 通过Snapshot快照方式将数据持久化到磁盘中。恢复时直接从文件读到内存中。
 Redis会单独创建（fork）一个子进程来进行持久化，会先将数据写入到整个过程中，待持久化过程都结束，再用这个临时文件替换上次持久化的文件。
 fork的作用是复制一个与当前进程一样的进程，新进程的所有数据（变量、环境变量、程序计数器）数值都和远进程一致，但是一个全新的线程，并作为原进程的子线程。
@@ -20,11 +34,13 @@ RDB的执行原理：（linux系统 进程是不能直接操作物理内存，�
         fork采用的是copy-on-write技术（java中CopyOnWriteArrayList， mysql中mvcc机制）
             1.当主进程执行读操作时，访问共享数据
             2.当主进程执行写操作时，则会拷贝一份数据，执行写操作
+~~~
 
-
-2、Aof方式（Append Only File）
+##  2、Aof方式（Append Only File）
+~~~
 Redis 默认是不使用该方式持久化的。Aof 方式的持久化，是操作一次 redis 数据库，则将操作的记录存储到 aof 持久化文件中。
-·第一步：开启 aof 方式持久化方案。 将redis.conf中的appendonly改为yes，即开启aof方式的持久化方案。
+·第一步：开启 aof 方式持久化方案。
+将redis.conf中的appendonly改为yes，即开启aof方式的持久化方案。
   appendonly yes
 ·Aof文件存储的目录和rdb方式的一样。 Aof文件存储的名称
  appendfilename "appendloy.aof"
@@ -35,15 +51,16 @@ Redis 默认是不使用该方式持久化的。Aof 方式的持久化，是操�
 
   数据刷盘机制
      1.always（同步刷盘），可靠性高，几乎不丢失数据   性能影响大
-     2.everysec（每秒同步刷盘），性能适中，   最多丢失1秒数据
-     3.n
+     2.everysec（每秒同步刷盘），性能适中，         最多丢失1秒数据
+     3.no (操作系统控制)，性能高                   可靠性差，可能丢大量数据
 
  AOF触发重写机制： Redis会记录上次重写时的AOF大小，默认配置是当AOF文件大小是上次rewrite后大小的一倍且文件大于64M触发
+~~~
 
 
- Redis 4.0 对于持久化机制的优化
-
- Redis 4.0 开始支持 RDB 和 AOF 的混合持久化（默认关闭，可以通过配置项 aof-use-rdb-preamble 开启）。
+##  Redis 4.0 对于持久化机制的优化
+~~~
+Redis 4.0 开始支持 RDB 和 AOF 的混合持久化（默认关闭，可以通过配置项 aof-use-rdb-preamble 开启）。
  如果把混合持久化打开，AOF 重写的时候就直接把 RDB 的内容写到 AOF 文件开头。这样做的好处是可以结合 RDB 和 AOF 的优点, 快速加载同时避免丢失过多的数据。
  当然缺点也是有的， AOF 里面的 RDB 部分是压缩格式不再是 AOF 格式，可读性较差。
 
@@ -54,3 +71,5 @@ Redis 默认是不使用该方式持久化的。Aof 方式的持久化，是操�
  在执行 BGREWRITEAOF 命令时，Redis 服务器会维护一个 AOF 重写缓冲区，该缓冲区会在子进程创建新 AOF 文件期间，记录服务器执行的所有写命令。
  当子进程完成创建新 AOF 文件的工作之后，服务器会将重写缓冲区中的所有内容追加到新 AOF 文件的末尾，使得新旧两个 AOF 文件所保存的数据库状态一致。
  最后，服务器用新的 AOF 文件替换旧的 AOF 文件，以此来完成 AOF 文件重写操作
+~~~
+ 

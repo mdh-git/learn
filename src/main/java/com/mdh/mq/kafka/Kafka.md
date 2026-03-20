@@ -103,9 +103,9 @@ kafka文件存储机制
     
 数据清理机制
     1.根据消息的保留时间，当消息在kafka中保存的时间超过指定的时间，就会触发清理过程
-        log.retention.hours=168  // 168小时
+        log.retention.hours=168  // 168小时   7天
     2.根据topic存储的数据大小，当topic所占的日志文件打下大于一定阈值，则开始删除最久的消息。需要手动启动
-        log.retention.bytes=1073741824
+        log.retention.bytes=1073741824   1G
 ~~~
 
 ## kafka中高性能的设计
