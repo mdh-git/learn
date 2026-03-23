@@ -1,5 +1,13 @@
 # Lock
 
+##  ReentrantLock的实现原理
+~~~
+1.ReentrantLock表示支持重新进入的锁，调用lock方法获取了锁之后，再次调用lock，是不会再阻塞
+2.ReentrantLock主要利用CAS+AQS队列来实现
+3.支持公平锁和非公平锁，在提供的构造器的中无参默认是非公平锁，也可以传参设置为公平锁
+~~~
+
+
 ## 公平锁和非公平锁
 ~~~
 Java语言中有许多原生线程安全的数据结构，比如ArrayBlockingQueue、CopyOnWriteArrayList、LinkedBlockingQueue，
