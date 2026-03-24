@@ -62,3 +62,16 @@ Entry[] newTab = new Entry[newLen];
 ~~~
 https://mp.weixin.qq.com/s/LrtaTTz25NIV7EAr9q3BHQ
 ~~~
+
+
+~~~
+1.ThreadLocal 可以实现(资源对象)的线程隔离，让每个线程各用各的(资源对象)避免争用引发的线程安全问题
+2.ThreadLocal 同时实现了线程内的资源共享
+3.每个线程内有一个 ThreadLocalMap 类型的成员变量，用来存储资源对象
+    a、调用 set方法，就是以 ThreadLocal 自己作为 key，资源对象作为 value，放入当前线程的 ThreadLocalMap 集合中
+    b、调用 get 方法，就是以 ThreadLocal 自己作为 key，到当前线程中查找关联的资源值
+    c、调用 remove 方法，就是以 ThreadLocal 自己作为 key，移除当前线程关联的资源值
+4.ThreadLocal内存泄漏问题
+    ThreadLocalMap 中的 key是弱引用，值为强引用;key 会被GC释放内存，关联 value的内存并不会释放。
+    建议主动remove 释放 key，value
+~~~
