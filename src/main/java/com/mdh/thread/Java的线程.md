@@ -74,6 +74,21 @@ htop
     这些方法在虚拟线程上调用时会抛出UnsupportedOperationException异常。
 ~~~
 
+# 创建虚拟线程的方式
+~~~
+1.创建线程的方式有哪些?
+    继承Thread类
+    实现runnable接口
+    实现callable接口
+    线程池创建线程(项目中使用方式）
+2.runnable和callable 有什么区别
+    Runnable接口run方法没有返回值
+    Callable接口call方法有返回值，需要FutureTask获取结果
+    Callable接口的call()方法允许抛出异常;而Runnable接口的run()方法的异常只能在内部消化，不能继续上抛
+3.run(和 start(有什么区别?
+    start():用来启动线程，通过该线程调用run方法执行run方法中所定义的逻辑代码。start方法只能被调用一次。
+    run():封装了要被线程执行的代码，可以被调用多次。
+~~~
 
 # 创建虚拟线程的方式
 ~~~
@@ -101,4 +116,40 @@ try(var executors = Executors.newVirtualThreadPerTaskExecutor()){
 }
 官方并不建议虚拟线程和线程池一起用，主要就是不想让虚拟线程进行池化，
 因为像所有资源池一样、线程池旨在共享昂贵的资源，但虚拟线程并不昂贵，因此永远不需要将它们池化。
+~~~
+
+## notify 和 notifyAll
+~~~
+notify唤醒某一个线程
+notifyAll唤醒全部的线程
+~~~
+
+## 在java中wait和sleep方法的不同?
+~~~
+共同点
+    wait()，wait(long)和sleep(long)的效果都是让当前线程暂时放弃CPU的使用权，进入阻塞状态不同点
+
+不同点
+    1.方法归属不同
+        sleep(long)是 Thread的静态方法
+        而 wait()，wait(long)都是Object 的成员方法，每个对象都有
+    2.醒来时机不同
+        执行 sleep(long)和wait(long)的线程都会在等待相应毫秒后醒来
+        wait(long)和wait()还可以被notify唤醒，wait()如果不唤醒就一直等下去
+        它们都可以被打断唤醒
+    3.锁特性不同(重点)
+        wait 方法的调用必须先获取wait对象的锁，而sleep则无此限制
+        wait 方法执行后会释放对象锁，允许其它线程获得该对象锁(我放弃cpu，但你们还可以用)
+        而sleep如果在synchronized代码块中执行，并不会释放对象锁(我放弃cpu，你们也用不了)
+~~~
+
+## 如何停止一个正在运行的线程?
+~~~
+
+有三种方式可以停止线程
+    1.使用退出标志，使线程正常退出，也就是当run方法完成后线程终止
+    2.使用stop方法强行终止(不推荐，方法已作废)
+    3.使用interrupt方法中断线程
+        打断阻塞的线程(sleep，wait，join)的线程，线程会抛出InterruptedException异常
+        打断正常的线程，可以根据打断状态来标记是否退出线程
 ~~~
