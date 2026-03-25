@@ -1,6 +1,10 @@
 # ClassLoader
 ## 介绍
 ~~~
+
+JVM只会运行二进制文件，类加载器的作用就是将字节码文件加载到JVM中，从而让java程序能够启动起来
+
+
 ClassLoader类的介绍可以总结出这个类的作用就是根据一个指定的类的全限定名,找到对应的Class字节码文件,
 然后加载它转化成一个java.lang.Class类的一个实例.
 
@@ -9,11 +13,11 @@ ClassLoader类的介绍可以总结出这个类的作用就是根据一个指定
 
 启动类加载器(Bootstrap ClassLoader):
         (负责加载 JVM 运行时核心类,加载System.getProperty("sun.boot.class.path")所指定的路径或jar)
-　　　　这个类加载器负责将\lib目录下的类库加载到虚拟机内存中,用来加载java的核心库,此类加载器并不继承于java.lang.ClassLoader,
+　　　　这个类加载器负责将JAVA_HOME/jre/lib目录下的类库加载到虚拟机内存中,用来加载java的核心库,此类加载器并不继承于java.lang.ClassLoader,
        不能被java程序直接调用,代码是使用C++编写的.是虚拟机自身的一部分.
 
 扩展类加载器(Extendsion ClassLoader):
-       这个类加载器负责加载\lib\ext目录下的类库,用来加载java的扩展库,开发者可以直接使用这个类加载器.
+       这个类加载器负责加载JAVA_HOME/jre/lib/ext目录下的类库,用来加载java的扩展库,开发者可以直接使用这个类加载器.
        (负责加载 JVM 扩展类，比如 swing 系列、内置的 js 引擎、xml 解析器 等等，这些库名通常以 javax 开头，它们的 jar 包位于 JAVAHOME/lib/rt.jar文件中.
         加载System.getProperty("java.ext.dirs")所指定的路径或jar。
         在使用Java运行程序时，也可以指定其搜索路径，例如：java -Djava.ext.dirs=d:\projects\testproj\classes HelloWorld。)
@@ -36,7 +40,9 @@ ClassLoader类的介绍可以总结出这个类的作用就是根据一个指定
             系统类加载器(应用程序类加载器(Application ClassLoader))
                 |                                |
                 |                                |
-    开发人员编写的类加载器A                
+    开发人员编写的类加载器A(CustomizeClassLoader)
+    自定义类加载器     
+               
 
 
 ClassLoader loader = TestClassLoader.class.getClassLoader();
@@ -102,6 +108,9 @@ protected Class<?> loadClass(String name, boolean resolve)
 这是十分必要的,比如java.langObject,它存放在\jre\lib\rt.jar中,它是所有java类的父类,因此无论哪个类加载都要加载这个类,最终所有的加载请求都汇总到顶层的启动类加载器中,
 因此Object类会由启动类加载器来加载,所以加载的都是同一个类,如果不使用双亲委派模型,由各个类加载器自行去加载的话,系统中就会出现不止一个Object类,应用程序就会全乱了.
 
+
+1.通过双亲委派模型机制可以避免某一个类被重复加载，当父亲已经加载后则无需重复加载，保证唯一性
+2.为了安全，保证类库API不会被修改
 ~~~
 
 ## 关于双亲委派机制的破坏(jdbc、tomcat、spring)
