@@ -78,3 +78,40 @@ Redis Cluster分片集群特征：
         key中不包含“{}”，整个key都是有效部分
 
 ~~~
+
+## Redis Cluster
+~~~
+Redis Cluster是去中心化的，节点与节点之前需要通过Gossip协议，每秒都要交换信息
+
+16384槽(2KB)(空间换时间)
+bitmap = 16384/8/1024 = 2KB
+网络负担轻，节省带宽，通信流畅
+
+Redis Cluster节点数不要超过1000个
+~~~
+
+## Redis Cluster处理请求
+~~~
+1.Dumb Client(Jedis直连)
+    每次请求需要经过多次网络交互(节点数)，延迟翻倍
+    
+2.Smart Client(JedisCluster)
+    本地缓存槽位映射表(Slot Cache),直接定位正确节点，一次命中
+~~~
+
+## MGET 与 HashTag
+~~~
+在单机中不会有问题，但在集群模式中MGET可能会报错的
+ERROR: CROSSSLOT Keys in request don not hash to the slot
+
+user:1001:info   
+user:1001:orders
+因为无法跨节点取数据
+
+
+HashTag解决
+{user:1001}:info 
+{user:1001}:orders
+强制同一个槽位，MGET完美执行
+
+~~~
