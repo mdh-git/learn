@@ -280,3 +280,52 @@ FullGC垃圾回收  老年代
 [名称: GC前内存占用 -> GC后内存占用 该区内存总大小
 ~~~
 
+
+
+
+## 常量池 运行时常量池 字符串常量池
+~~~
+1.Class Constant Pool 常量池
+    Static  在.class文件里的静态图纸         符号地址
+    
+    
+2.Runtime Constant Pool 运行时常量池
+    Loaded  类加载后，真实数据               真实地址
+
+
+3.String Table  字符串常量池
+    (HashTable结构)
+~~~
+
+## String Table
+~~~
+JDK 1.6   String Table 是在PermGen(永久代)中    
+            StringTable挤在永久代中，空间小，难回收
+            
+            
+            
+JDK 1.7+  String Table 是在Heap中
+            空间大，频繁GC
+            
+            
+StringTable(字符串常量池)本质是HashTable，如果过多字符串，桶(Bucket)不够用，链表就会巨长，存取变成遍历链表，CPU直接飙升
+如果要存海量数据到常量池，调整桶的大小： -XX:StringTableSize=N
+~~~
+
+## intern()问题
+~~~
+// s指向堆中的"11"对象
+
+String s = new String("1") + new String("1");
+
+// 关键点
+s.intern();
+
+String x = "11";
+s == x
+
+
+在JDK6  为False，Copy Mode(复制副本到PermGen)
+
+在JDK7+ 为true  Reference Mode(只存引用)，因为在StringTable就在堆里，直接引用对象，不复制
+~~~
