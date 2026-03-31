@@ -1,7 +1,5 @@
 package com.mdh.designpattern.strategy.one;
 
-import com.mdh.designpattern.strategy.Strategy;
-
 /**
  * @Author: madonghao
  * @Date: 2022/1/25 5:52 下午
