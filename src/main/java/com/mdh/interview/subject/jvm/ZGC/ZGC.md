@@ -64,7 +64,7 @@ Old Generation:存储长期存活对象，回收频率低，依赖并发标记·
 核心优势	             平衡延迟与吞吐量，适配中小堆 (4G-32G)	                  毫秒级停顿，支持超大堆 (TB级)
 ~~~
 
-## ZGC参数这是
+## ZGC JDK21 参数这是
 ~~~
 -X:+UseZGC -Xx:ZHeapsize-8g -X:ZGenerationaltrue
 
@@ -129,6 +129,6 @@ Finalizable：该位表示对象是否仅通过 finalizer 可达。需要注意�
  转发表
 指针   old地址     new地址
  A     000001     111001
- B     000011     111 011
+ B     000011     111011
 ~~~
 
