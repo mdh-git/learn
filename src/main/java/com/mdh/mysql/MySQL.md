@@ -213,15 +213,32 @@ https://mp.weixin.qq.com/s?__biz=Mzg2OTA0Njk0OA==&mid=2247485117&idx=1&sn=923617
     •外键会影响父表和子表的写操作从而降低性能
 ~~~
 
+## 索引优化
+~~~
+1、全值匹配
+2.最左前缀原则
+3.索引列上少计算数    lfte(name, 3) = "XXX"
+4.联合索引 A B C  查询条件B使用了范围查询，C列将会失效，但会使用索引下推
+5.模糊查询时  使用"张%"  当使用"%张"会全表扫描
+6.VAR字段加括号  
+    正确   name =  "XXX"
+    错误   name =  XXX  会全表扫描
+7.范围查询优化
+    比如  age > 1 and age < 2000   不走索引，全表扫描   age > 1 and age < 200 可能使用索引
+    mysql把内部优化器会根据检索索引比例、表大小整体评估是否使用索引
+~~~
+
 ## SQL优化手段
 ~~~
 1、查询语句中不要使用select *
-2、尽量减少子查询，使用关联查询（left join,right join,inner join）替代
-3、减少使用IN或者NOT IN ,使用exists，not exists或者关联查询语句替代
-4、or 的查询尽量用 union或者union all 代替(在确认没有重复数据或者不用剔除重复数据时，union all会更好)
-5、应尽量避免在 where 子句中使用!=或<>操作符，否则将引擎放弃使用索引而进行全表扫描。
-6、应尽量避免在 where 子句中对字段进行 null 值判断，否则将导致引擎放弃使用索引而进行全表扫描，
+2、小表驱动大表
+3、尽量减少子查询，使用关联查询（left join,right join,inner join）替代
+4、减少使用IN或者NOT IN ,使用exists，not exists或者关联查询语句替代
+5、or 的查询尽量用 union或者union all 代替(在确认没有重复数据或者不用剔除重复数据时，union all会更好)
+6、应尽量避免在 where 子句中使用!=或<>操作符，否则将引擎放弃使用索引而进行全表扫描。
+7、应尽量避免在 where 子句中对字段进行 null 值判断，否则将导致引擎放弃使用索引而进行全表扫描，
     如： select id from t where num is null 可以在num上设置默认值0，确保表中num列没有null值，然后这样查询： select id from t where num=0
+8、提升group by的效率，对group by字段增加索引
 ~~~
 
 ## 使用索引的注意事项
@@ -248,6 +265,8 @@ https://mp.weixin.qq.com/s?__biz=Mzg2OTA0Njk0OA==&mid=2247485117&idx=1&sn=923617
 隐式类型转换	             是	              WHERE varchar_col = 123
 
 ~~~
+
+
 
 ## 大表优化
 ~~~
@@ -483,4 +502,14 @@ innodb_buffer_pool_instances = 2
 
 当innodb_buffer_pool_size的值小于1G的时候设置多个实例是无效的，InnoDB会默认把innodb_buffer_pool_instances 的值修改为1。
 在 Buffer Pool 大小或等于1G的时候设置多个 Buffer Pool 实例。
+~~~
+
+
+## 索引下推
+~~~
+创建联合索引 idx_name_age (name, age)
+SELECT * FROM users WHERE name LIKE '张%' AND age > 20;
+
+在MYSQL 5.6之后引入
+索引下推的主要优势就是减少回表次数，从而降低 I/O 开销，提升查询性能
 ~~~

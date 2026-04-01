@@ -3,6 +3,9 @@
 https://cloud.tencent.com.cn/developer/article/1971380
 
 MVCC（Mutil Version Concurrency Control）多版本并发控制，是一种并发控制的方法（而非具体实现），一般在数据库管理系统中，实现对数据库的并发访问。
+
+
+https://cloud.tencent.com/developer/article/2419481
 ~~~
 
 ## 并发事务可能产生的问题
@@ -24,23 +27,7 @@ MVCC（Mutil Version Concurrency Control）多版本并发控制，是一种并�
 并发事务对数据的写操作，只能通过加锁(乐观锁/悲观锁)来解决。
 ~~~
 
-## 当前读和快照读
-~~~
-当前读：读取的数据是最新版本，读取数据时还要保证其他并发事务不会修改当前的数据，当前读会对读取的记录加锁。
-    比如：select …… lock in share mode（共享锁）、select …… for update | update | insert | delete（排他锁）
- 
-快照读：每一次修改数据，都会在 undo log 中存有快照记录，这里的快照，就是读取undo log中的某一版本的快照。
-      这种方式的优点是可以不用加锁就可以读取到数据，缺点是读取到的数据可能不是最新的版本。一般的查询都是快照读，
-      比如：select * from t_user where id=1;在MVCC中的查询都是快照度。
-~~~
 
-### undo log 和 redo log
-~~~
-redo log：记录的是数据页的物理修改，服务宕机可用来同步数据。
-        保证了事务的持久性。
-undo log：记录的是逻辑日志，当事务回滚时，通过逆操作恢复原来的数据。
-        保证了事务的一致性和原子性。
-~~~
 
 ~~~
 
@@ -57,6 +44,9 @@ delete              -----commit------>            缓冲池
 
 ## MVCC实现、原理
 ~~~
+
+MVCC的实现原理就是通过 InnoDB表的隐藏字段、UndoLog 版本链、ReadView来实现的。 而MVCC + 锁，则实现了事务的隔离性。 而一致性则是由redolog 与 undolog保证。
+
 MySQL中MVCC主要是通过行记录中的隐藏字段（隐藏主键 row_id、事务ID trx_id、回滚指针 roll_pointer）、undo log（版本链）、ReadView（一致性读视图）来实现的。
 
 1、隐藏字段
@@ -83,6 +73,16 @@ MySQL中，在每一行记录中除了自定义的字段，还有一些隐藏字
         （3）当【版本链中记录的 trx_id 大于下一个要分配的事务id（trx_id > max_trx_id）】时，该快照记录对当前事务不可见。
         （4）当【版本链中记录的 trx_id 大于等于最小活跃事务id】且【版本链中记录的trx_id小于下一个要分配的事务id】（min_trx_id<= trx_id < max_trx_id）时，如果版本链中记录的 trx_id 在活跃事务id列表 m_ids 中，说明生成 ReadView 时，修改记录的事务还没提交，所以该快照记录对当前事务不可见；否则该快照记录对当前事务可见。
         
+不同的隔离级别，生成ReadView的时机不同：
+
+READ UNCOMMITTED ： 隔离级别的事务来说，由于可以读到未提交事务修改过的记录，所以直接读取记录的最新版本就好了
+READ COMMITTED ：在事务中每一次执行快照读时生成ReadView。
+REPEATABLE READ：仅在事务中第一次执行快照读时生成ReadView，一直到提交前都复用该ReadView。在可重复读隔离级别下，Read View是在事务开始（begin）之后且执行第一条sql时创建，创建Read View的同时也就生成了一个新的事务id（直到commit结束），事务会依赖该 Read View保证查询结果保持不变直到该事务结束。     
+SERIALIZABLE ： 隔离级别的事务来说，InnoDB 使用加锁的方式来访问记录，不存在并发问题。  
+        
+        
+        
+
 MVCC主要是用来解决RU隔离级别下的脏读和RC隔离级别下的不可重复读的问题，所以MVCC只在RC（读已提交）（解决脏读）和RR（可重复度）（解决不可重复读）隔离级别下生效，也就是MySQL只会在RC和RR隔离级别下的快照读时才会生成ReadView。
 区别就是：
     在RC隔离级别下，每一次快照读都会生成一个最新的ReadView；
@@ -96,4 +96,73 @@ MVCC主要是用来解决RU隔离级别下的脏读和RC隔离级别下的不可
     Next-Key Lock 实际上是两种锁的组合：
         记录锁(Record Lock)：锁定索引中的具体记录
         间隙锁(Gap Lock)：锁定索引记录之间的间隙
+~~~
+
+## 快照读 当前读
+~~~
+快照读
+      每一次修改数据，都会在 undo log 中存有快照记录，这里的快照，就是读取undo log中的某一版本的快照。
+      这种方式的优点是可以不用加锁就可以读取到数据，缺点是读取到的数据可能不是最新的版本。一般的查询都是快照读，
+      比如：select * from t_user where id=1;在MVCC中的查询都是快照度。
+
+当前读
+当前读读取的是记录的最新版本(最新数据，而不是历史版本的数据)，读取时还要保证其他并发事务不能修改当前记录，会对读取的记录进行加锁
+SELECT * FROM student LOCK IN SHARE MODE; # 共享锁
+SELECT * FROM student FOR UPDATE; # 排他锁
+INSERT INTO student values ... # 排他锁
+DELETE FROM student WHERE ... # 排他锁
+UPDATE student SET ... # 排他锁
+~~~
+
+
+## 并发事务问题
+~~~
+脏读（dirty ready）
+    一个事务读到另外一个事务还没有提交的数据。
+
+不可重复读（non-repeatable read）
+    一个事务先后读取同一条记录，但两次读取的数据不同，称之为不可重复读。（其他事务已提交）【针对同一行记录】
+
+幻读（phantom read）
+    一个事务按照条件查询数据时，没有对应的数据行，但是在插入数据时，又发现这行数据已经存在，好像出现了“幻影”【针对数据行数】
+~~~
+
+
+### undo log 和 redo log
+~~~
+redo log：记录的是数据页的物理修改，服务宕机可用来同步数据。
+        保证了事务的持久性。
+undo log：记录的是逻辑日志，当事务回滚时，通过逆操作恢复原来的数据。
+        保证了事务的一致性和原子性。
+~~~
+
+
+## 总结
+~~~
+
+1）事务四大特性ACID：原子性、一致性、隔离性、持久性
+
+2）并发事务问题：脏写、脏读、不可重复读、幻读
+
+3）事务隔离级别：读未提交（READ UNCOMMITTED）、读提交（READ COMMITTED）、可重复读（REPEATABLE READ）、串行化（SERIALIZABLE）
+
+4）MVCC 在可重复读(RR)隔离级别下 解决了以下问题：
+    并发读-写时：可以做到读操作不阻塞写操作，同时写操作也不会阻塞读操作。
+    解决 脏读、幻读、不可重复读 等事务隔离问题，但不能解决写-写（需要加锁）问题。
+    
+5）当前读与快照读：MVCC分为两种模式：
+    一种是当前读（读取最新的数据），如 select ... for update/lock in share mode、insert、update、delete；
+    另一种是快照读（历史某个版本的数据，不一定是当前时刻最新的数据），不加锁的普通select 都属于快照读
+
+6）MVCC原理：MVCC的具体实现，需要依赖于数据库记录中的三个隐式字段（TRX_ID、ROLL_PTR）、undo log日志、Read View
+
+7）Read View读视图：Read View 是 快照读 SQL执行时MVCC提取数据的依据，记录并维护系统数据以及当前活跃事务的ID（未提交的）。Read View也规定了版本链数据的访问规则
+
+8）不同的隔离级别，生成ReadView的时机不同：
+    READ COMMITTED（读已提交） ：在事务中每一次执行快照读（不加锁的普通select）时生成ReadView。
+    REPEATABLE READ（可重复度）：仅在事务中第一次执行快照读时生成ReadView，一直到提交前都复用该ReadView，事务会依赖该 Read View保证查询结果保持不变直到该事务结束。
+    
+9）RR（可重复度）隔离级别如何解决幻读问题：快照读依靠MVCC控制，当前读通过 next-key lock 解决（MVCC 解决了快照读情况下的幻读，next-key lock 解决当前读情况下的幻读）。
+
+10）间隙锁和行锁合称 Next-Key Lock，每个 Next-Key Lock 是前开后闭区间。当执行当前读时，在锁定读取到的记录的同时，也会锁定它们的间隙，防止其它事务在查询范围内插入数据。只要我不让你插入，就不会发生幻读。
 ~~~
