@@ -1,8 +1,5 @@
 package com.mdh.designpattern.strategy.one;
 
-import com.mdh.designpattern.strategy.RedPaper;
-import com.mdh.designpattern.strategy.Shopping;
-
 /**
  * @Author: madonghao
  * @Date: 2022/1/25 5:54 下午

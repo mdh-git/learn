@@ -1,4 +1,4 @@
-package com.mdh.project.showfield;
+package com.mdh.project;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,8 +10,8 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor
 public class Point implements Serializable {
-    protected double x;
-    protected double y;
+    public double x;
+    public double y;
 
     public Point(double x, double y) {
         this.x = x;

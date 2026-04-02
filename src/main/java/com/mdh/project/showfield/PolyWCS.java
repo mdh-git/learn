@@ -1,5 +1,6 @@
 package com.mdh.project.showfield;
 
+import com.mdh.project.Point;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
