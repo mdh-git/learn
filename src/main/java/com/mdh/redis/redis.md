@@ -38,6 +38,8 @@ used 记录了已使用的节点数量。
         拒绝BigKey：一个大 Key（如包含百万字段的 Hash）会导致网络阻塞和删除时主线程卡顿。需拆分或使用 SCAN 渐进式删除。
         数据结构选型：例如存对象用 Hash 比 String 省内存（约 30%+）；签到用 Bitmap 仅需 125KB 即可存 100 万人数据。
         内存淘汰策略：生产环境必须配置 maxmemory 和 maxmemory-policy（如 allkeys-lru），防止 OOM 导致服务宕机。
+        碎片整理：  碎片清理、开启 active-defrag yes,让redis在后台整理内存碎片
+        集中过期：防止同一时间过期，增加随机时间 redis.expireat(key, expire_time + random(300))
         
     性能优化：
         Pipeline：批量操作（如一次性导入数据）使用 Pipeline 减少 RTT（网络往返时间），QPS 可提升数倍。
