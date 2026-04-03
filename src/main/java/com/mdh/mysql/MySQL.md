@@ -387,6 +387,12 @@ InnoDB 是 MySQL 最常用的支持行锁的存储引擎，其行锁实现机制
 
 ##  mysql中的Buffer Pool
 ~~~
+
+https://cloud.tencent.com/developer/article/2494089
+https://cloud.tencent.com/developer/article/1962632
+
+https://www.processon.com/view/603c860e07912913b4f24f60
+
 InnoDB为了缓存磁盘中的页，在 MySQL 服务器启动的时候就向操作系统申请了一片连续的内存，叫做 Buffer Pool （中文名是 缓冲池 ）。
 默认情况下 Buffer Pool 只有 128M 大小。 最小为5M。
 
@@ -413,7 +419,7 @@ free链表： 把所有空闲的缓存页对应的控制块作为一个节点放
 
 修改了 Buffer Pool 中某个缓存页的数据，那它就和磁盘上的页不一致了，这样的缓存页也被称为 脏页 （英文名： dirty page ）。
 
-flush链表：跟free链表相同结构，记录被修改的页，如果free链表上的页都被修改，则与free链表相同
+flush链表：跟free链表相同结构，记录被修改的页
     头结点、尾结点、count
     每个控制块: free_pre、 free_next节点
     
@@ -483,4 +489,17 @@ innodb_buffer_pool_instances = 2
 
 当innodb_buffer_pool_size的值小于1G的时候设置多个实例是无效的，InnoDB会默认把innodb_buffer_pool_instances 的值修改为1。
 在 Buffer Pool 大小或等于1G的时候设置多个 Buffer Pool 实例。
+~~~
+
+## 为什么默认 RR，大厂要改成 RC？
+~~~
+主要出于以下考虑：
+
+1. 提升并发性能：RC隔离级别下，锁粒度较小，只锁一行数据，并发性能较好，尤其在读密集型应用中表现优异。行级锁，减少了锁冲突，提升了并发度。
+2. 减少死锁：RR隔离级别会增加Gap Lock和Next-Key Lock，使得锁的粒度变大，死锁的概率也增大。而RC隔离级别不存在间隙锁，只需行锁即可。如此可减少了死锁发生的概率。
+3. 满足实时性需求：RC每次读取数据都会获取最新的行版本，适合实时性要求高的应用。而RR读取的数据可能不会反映出其他事务对数据的更改，不适合实时性要求高的场景。
+4. 简化主从同步：RC要求使用行式binlog，有助于减少主从同步时的数据不一致问题。
+
+虽然RC隔离级别可能会引发幻读问题，但在实际应用中，幻读问题可以通过其他手段解决或忽略，且大厂更关注实时性需求和高并发性能
+
 ~~~
