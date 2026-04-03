@@ -213,15 +213,32 @@ https://mp.weixin.qq.com/s?__biz=Mzg2OTA0Njk0OA==&mid=2247485117&idx=1&sn=923617
     •外键会影响父表和子表的写操作从而降低性能
 ~~~
 
+## 索引优化
+~~~
+1、全值匹配
+2.最左前缀原则
+3.索引列上少计算数    lfte(name, 3) = "XXX"
+4.联合索引 A B C  查询条件B使用了范围查询，C列将会失效，但会使用索引下推
+5.模糊查询时  使用"张%"  当使用"%张"会全表扫描
+6.VAR字段加括号  
+    正确   name =  "XXX"
+    错误   name =  XXX  会全表扫描
+7.范围查询优化
+    比如  age > 1 and age < 2000   不走索引，全表扫描   age > 1 and age < 200 可能使用索引
+    mysql把内部优化器会根据检索索引比例、表大小整体评估是否使用索引
+~~~
+
 ## SQL优化手段
 ~~~
 1、查询语句中不要使用select *
-2、尽量减少子查询，使用关联查询（left join,right join,inner join）替代
-3、减少使用IN或者NOT IN ,使用exists，not exists或者关联查询语句替代
-4、or 的查询尽量用 union或者union all 代替(在确认没有重复数据或者不用剔除重复数据时，union all会更好)
-5、应尽量避免在 where 子句中使用!=或<>操作符，否则将引擎放弃使用索引而进行全表扫描。
-6、应尽量避免在 where 子句中对字段进行 null 值判断，否则将导致引擎放弃使用索引而进行全表扫描，
+2、小表驱动大表
+3、尽量减少子查询，使用关联查询（left join,right join,inner join）替代
+4、减少使用IN或者NOT IN ,使用exists，not exists或者关联查询语句替代
+5、or 的查询尽量用 union或者union all 代替(在确认没有重复数据或者不用剔除重复数据时，union all会更好)
+6、应尽量避免在 where 子句中使用!=或<>操作符，否则将引擎放弃使用索引而进行全表扫描。
+7、应尽量避免在 where 子句中对字段进行 null 值判断，否则将导致引擎放弃使用索引而进行全表扫描，
     如： select id from t where num is null 可以在num上设置默认值0，确保表中num列没有null值，然后这样查询： select id from t where num=0
+8、提升group by的效率，对group by字段增加索引
 ~~~
 
 ## 使用索引的注意事项
@@ -393,6 +410,7 @@ https://cloud.tencent.com/developer/article/1962632
 
 https://www.processon.com/view/603c860e07912913b4f24f60
 
+
 InnoDB为了缓存磁盘中的页，在 MySQL 服务器启动的时候就向操作系统申请了一片连续的内存，叫做 Buffer Pool （中文名是 缓冲池 ）。
 默认情况下 Buffer Pool 只有 128M 大小。 最小为5M。
 
@@ -419,7 +437,7 @@ free链表： 把所有空闲的缓存页对应的控制块作为一个节点放
 
 修改了 Buffer Pool 中某个缓存页的数据，那它就和磁盘上的页不一致了，这样的缓存页也被称为 脏页 （英文名： dirty page ）。
 
-flush链表：跟free链表相同结构，记录被修改的页
+flush链表：跟free链表相同结构，记录被修改的页，如果free链表上的页都被修改，则与free链表相同
     头结点、尾结点、count
     每个控制块: free_pre、 free_next节点
     
@@ -489,6 +507,19 @@ innodb_buffer_pool_instances = 2
 
 当innodb_buffer_pool_size的值小于1G的时候设置多个实例是无效的，InnoDB会默认把innodb_buffer_pool_instances 的值修改为1。
 在 Buffer Pool 大小或等于1G的时候设置多个 Buffer Pool 实例。
+~~~
+
+## 为什么默认 RR，大厂要改成 RC？
+~~~
+主要出于以下考虑：
+
+1. 提升并发性能：RC隔离级别下，锁粒度较小，只锁一行数据，并发性能较好，尤其在读密集型应用中表现优异。行级锁，减少了锁冲突，提升了并发度。
+2. 减少死锁：RR隔离级别会增加Gap Lock和Next-Key Lock，使得锁的粒度变大，死锁的概率也增大。而RC隔离级别不存在间隙锁，只需行锁即可。如此可减少了死锁发生的概率。
+3. 满足实时性需求：RC每次读取数据都会获取最新的行版本，适合实时性要求高的应用。而RR读取的数据可能不会反映出其他事务对数据的更改，不适合实时性要求高的场景。
+4. 简化主从同步：RC要求使用行式binlog，有助于减少主从同步时的数据不一致问题。
+
+虽然RC隔离级别可能会引发幻读问题，但在实际应用中，幻读问题可以通过其他手段解决或忽略，且大厂更关注实时性需求和高并发性能
+
 ~~~
 
 ## 为什么默认 RR，大厂要改成 RC？
