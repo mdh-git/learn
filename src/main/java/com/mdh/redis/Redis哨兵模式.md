@@ -6,7 +6,7 @@ redis提供了哨兵（Sentinel）机制来实现主从集群的自动故障恢�
 
 哨兵模式下，主从集群由至少三个哨兵节点（redis节点）组成的集群
     监控：Sentinel会不断检查redis集群的master和slave是否正常工作，并实时通知其他Sentinel节点。
-    自动故障恢复：如果master故障，Sentinel会将一个slave提升为master。当故障回复后也以新的master为主。
+    自动故障恢复：如果master故障，Sentinel会将一个slave提升为master。当故障恢复后也以新的master为主。
     通知：Sentinel充当Redis客户端的服务发现来源，当集群发生故障转移时，会将最新信息推给Redis的客户端。
 
 
