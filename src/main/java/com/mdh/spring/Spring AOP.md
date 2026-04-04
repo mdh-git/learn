@@ -71,3 +71,23 @@ try {
     @After
 }
 ~~~
+
+## Spring AOP 什么场景下会失效？
+~~~
+1.内部方法调用失败
+    原因：OP通过代理对象增强方法，但内部调用通过this直接调用目标对象的方法，绕过了代理
+    解决：使用AopContext.currentProxy() 需开启exposeProxy配置
+    
+2，非Spring管理的对象
+    通过new关键字直接创建对象，而非通过Spring容器获取Bean:
+    原因：AOP只能代理Spring容器管理的Bean
+    解决方案：使用@Componet等注解将类声明为Bean，并通过@Autowried注入
+    
+3，异步方法（@Async）
+    原因：异步线程上下文与代理分离，导致切面逻辑失败
+    解决方案：在异步方法外层调用处添加AOP逻辑，或使用线程本地变量传递上下文
+    
+4.切入点表达式错误
+    表达式未正确匹配目标方法
+    解决方案： 使用精切的表达式，如execution(* com.example.service.UserService.*(..))
+~~~

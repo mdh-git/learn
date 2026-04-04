@@ -1,6 +1,9 @@
 # SpringBoot自动装配原理
 
 ~~~
+自动装配是Spring Boot的核心功能，核心目的是约定优于配置，通过智能判断项目依赖和环境，自动将组件注册到IOC容器
+
+
 @SpringBootApplication
 
 包含三个注解
