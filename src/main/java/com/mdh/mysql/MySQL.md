@@ -234,6 +234,9 @@ https://mp.weixin.qq.com/s?__biz=Mzg2OTA0Njk0OA==&mid=2247485117&idx=1&sn=923617
 2、小表驱动大表
 3、尽量减少子查询，使用关联查询（left join,right join,inner join）替代
 4、减少使用IN或者NOT IN ,使用exists，not exists或者关联查询语句替代
+    in： 确保主查询字段有索引，主查询结果大
+    exists： 子查询关联字段有索引，子查询结果集大
+    在5.6之后的版本  会尝试将IN自动转化为exists（通过半连接优化）
 5、or 的查询尽量用 union或者union all 代替(在确认没有重复数据或者不用剔除重复数据时，union all会更好)
 6、应尽量避免在 where 子句中使用!=或<>操作符，否则将引擎放弃使用索引而进行全表扫描。
 7、应尽量避免在 where 子句中对字段进行 null 值判断，否则将导致引擎放弃使用索引而进行全表扫描，
