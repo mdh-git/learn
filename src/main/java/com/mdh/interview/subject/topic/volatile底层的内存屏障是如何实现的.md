@@ -18,4 +18,14 @@ LoadLoad	Load1; LoadLoad; Load2	      保证load1的读取操作在load2及后�
 StoreStore	Store1; StoreStore; Store2	  在store2及其后的写操作执行前，保证store1的写操作已刷新到主内存
 LoadStore	Load1; LoadStore; Store2	  在stroe2及其后的写操作执行前，保证load1的读操作已读取结束
 StoreLoad	Store1; StoreLoad; Load2	  保证store1的写操作已刷新到主内存之后，load2及其后的读操作才能执行
+
+
+
+ 1.在每个volatile写操作前面插入一个StoreStore屏障、后面插入一个StoreLoad屏障
+    改写操作的结果对其他线程可见（通过刷新缓存）
+    防止写操作被重拍到后面的指令
+ 
+ 2.在每个volatile读操作后面插入一个LoadLoad屏障、后面插入一个LoadStore屏障
+    读取到最新的内存数据（通过缓存失效）
+    防止读操作被重排到前面的指令
 ~~~
