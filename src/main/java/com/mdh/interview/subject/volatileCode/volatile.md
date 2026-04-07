@@ -17,6 +17,15 @@ volatile是java虚拟机提供的轻量级的同步机制
  2.在每个volatile写操作后面插入一个StoreLoad屏障
  3.在每个volatile读操作后面插入一个LoadLoad屏障
  4.在每个volatile读操作后面插入一个LoadStore屏障
+ 
+当变量被volatile修饰时，JVM 会在编译阶段自动插入屏障指令，规则如下：
+1.对 volatile 写操作：
+    写操作前插入StoreStore屏障（保证普通写先刷回主内存，再执行 volatile 写）；
+    写操作后插入StoreLoad屏障（防止 volatile 写与后续的读 / 写重排序）；
+2.对 volatile 读操作：
+    读操作前插入LoadLoad屏障（保证 volatile 读先加载主内存数据）；
+    读操作后插入LoadStore屏障（防止 volatile 读与后续的写重排序）。
+ 
 
 可见性和有序性 是通过内存屏障来实现的, 参考文档：https://blog.csdn.net/huyongl1989/article/details/90712393
 ~~~

@@ -9,7 +9,14 @@ https://blog.csdn.net/codingtu/article/details/89047291
 内部实现了自动分段迁移的机制，也就是如果某个Cell的value执行CAS失败了，那么就会自动去找另外一个Cell分段内的value值进行CAS操作。
 ~~~
 
+## LongAdder
 ~~~
+专门解决高并发下 AtomicLong（AtomicInteger 同逻辑）自旋瓶颈的累加工具，核心是 分段累加：用 base 变量 + cells 数组分散竞争，最后汇总结果，底层也是 CAS，但把单点竞争拆成多点。
+
+高并发累加神器，分段化解竞争。
+
+原理：分段CAS（base+cells 数组）+ 最后汇总
+
 Java 8有一个新的类，java.util.concurrent.atomic.LongAdder。
 尝试使用分段CAS以及自动分段迁移的方式来大幅度提升多线程高并发执行CAS操作的性能
 
@@ -49,4 +56,9 @@ Cell[]数组：竞态条件下,累加各个线程自己的槽Cell[i]中
 最终结果的计算是下面这个形式：
   value = base + （Cell[0] + ... + Cell[i]）
 https://blog.csdn.net/reed1991/article/details/106598355
+
+
+1.选 AtomicInteger：低并发计数、需要精准原子操作（如 getAndSet、compareAndSet）、对内存占用敏感；
+
+2.选 LongAdder：高并发纯累加 / 统计场景（如接口 QPS、订单数、流量计数）、不在乎少量性能损耗只求高并发效率。
 ~~~

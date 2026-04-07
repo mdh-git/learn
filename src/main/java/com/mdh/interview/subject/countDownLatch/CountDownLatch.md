@@ -34,5 +34,40 @@ CountDownLatch是一次性的，计算器的值只能在构造方法中初始化
 ~~~
 1.countDownLatch是一个计数器，线程完成一个记录一个，计数器递减，只能只用一次
 2.CyclicBarrier的计数器更像一个阀门，需要所有线程都到达，然后继续执行，计数器递增，提供reset功能，可以多次使用
+~~~
 
+## 核心
+~~~
+CountDownLatch 基于 AQS共享模式实现，核心是「一个计数器 + 等待队列」
+    初始化时指定计数器值（如new CountDownLatch(3)），底层赋值给 AQS 的state；
+    调用await()的线程会阻塞，直到计数器（state）归 0；
+    其他线程调用countDown()让计数器 - 1，直到 state=0 时，唤醒所有等待线程。
+    
+1. await ()（等待计数归零）
+    底层调用 AQS 的acquireSharedInterruptibly(int arg)
+        检查 state 是否为 0，是则直接返回；
+        否则封装成 Node 加入 AQS 共享队列，调用LockSupport.park()挂起线程。
+        
+2. countDown ()（计数 - 1）
+    底层调用 AQS 的releaseShared(int arg)
+        循环 CAS 将 state-1，保证原子性；
+        只有 state 减到 0 时，才触发doReleaseShared()唤醒所有等待线程。
+~~~
+
+## 使用场景
+~~~
+1.任务拆分并行执行
+    主线程拆分 N 个子任务，等所有子任务完成后汇总结果
+2.服务启动检查
+    应用启动时，等所有依赖组件（数据库、缓存）初始化完成
+3.批量接口测试
+    等所有测试线程执行完，统计成功率 / 响应时间
+~~~
+
+## 总结
+~~~
+1.CountDownLatch 基于 AQS 共享模式，用 state 存储计数器，await () 等 state=0，countDown () 让 state-1；
+2.await () 核心是 “state≠0 则入队挂起”，countDown () 核心是 “CAS 减 state，归 0 则唤醒所有等待线程”；
+
+适用「等待多线程完成任务」场景，计数器只能用一次（state 归 0 后无法重置）。
 ~~~

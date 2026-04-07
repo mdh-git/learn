@@ -30,6 +30,31 @@ public final int getAndAddInt(Object var1, Long var2, int var4){
 }
 ~~~
 
+
+## Unsafe
+~~~
+Java 后门，可以直接操作内存、调用 CPU 指令。
+
+不对外暴露，AtomicInteger、Lock、ConcurrentHashMap 底层都用它。
+
+CAS
+    1.真正实现 CAS 比较并交换
+    2.CPU 原语级别原子操作，不可中断
+    3.这就是所有原子类的底层
+    
+    
+1.park()
+    a.挂起当前线程
+    b.线程进入等待状态，不消耗 CPU
+2.unpark(Thread thread)
+    唤醒指定线程
+    支持精准唤醒，比 wait/notify 更强
+3.parkNanos(long nanos)
+    限时挂起，超时自动醒来
+
+即：park 挂起，unpark 唤醒 → Lock 锁的底层就是它。
+~~~
+
 ## atomicInteger.getAndIncrement() 
 ~~~
 源码分析

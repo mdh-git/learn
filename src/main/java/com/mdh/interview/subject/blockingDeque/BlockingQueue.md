@@ -18,7 +18,7 @@ https://www.jianshu.com/p/7b2f1fa616c6
 ~~~
 
 ArrayBlockingQueue: 数组实现有界队列
-    一个基于数组结构的有限阻塞队列,此队列按 FIFO(先进先出)原则对元素进行排序。
+    一个基于数组实现的有界阻塞队列,此队列按 FIFO(先进先出)原则对元素进行排序。
 
 LinkedBlockingQueue: 链表结构无界队列
     一个基于链表结构的阻塞队列,此队列按FIFO(先进先出)排序元素,吞吐量通常高于ArrayBlockingQueue。
@@ -37,13 +37,80 @@ SynchronousQueue: 无元素存储阻塞队列
     
 ~~~
 
+
+## ArrayBlockingQueue
+~~~
+ArrayBlockingQueue：数组实现 + 全局单锁，有界、读写互斥；
+基于数组实现的有界阻塞队列，核心靠「循环数组 + 头尾指针」实现空间复用：
+
+初始化时指定固定容量（如new ArrayBlockingQueue(10)），数组大小不可变；
+用takeIndex（出队指针）、putIndex（入队指针）标记数组读写位置；
+当putIndex/takeIndex到达数组末尾时，重置为 0，形成 “循环”；
+用count记录队列元素数量，判断队列空 / 满。
+
+数组：[A, B, C, _, _] → takeIndex=0, putIndex=3, count=3
+出队A → takeIndex=1, count=2
+入队D → putIndex=4, count=3
+入队E → putIndex=0（循环）, count=4
+
+入队（put）与出队（take）的锁逻辑：全局独占锁
+ArrayBlockingQueue 用单个 ReentrantLock 全局锁+ 两个 Condition 实现阻塞，
+核心特点：「读写互斥，同一时间只能读 / 写其一」：
+    1. 入队（put (E e)）—— 队列满则阻塞
+        获取全局锁 → 检查队列满 → 满则通过notFull.await()挂起（释放锁）→ 被唤醒后入队 → 唤醒出队等待线程 → 释放锁。
+    2. 出队（take ()）—— 队列空则阻塞
+        获取全局锁 → 检查队列空 → 空则通过notEmpty.await()挂起（释放锁）→ 被唤醒后出队 → 唤醒入队等待线程 → 释放锁。
+        
+全局锁：读写共用一把锁，高并发下读写互相阻塞，性能略低；
+Condition 分工：notEmpty管出队等待，notFull管入队等待，精准唤醒。
+
+入队 / 出队都要获取同一把全局锁，入队时出队必须等，出队时入队必须等；
+即使队列既不满也不空，读写也无法并行，高并发下性能瓶颈明显。
+~~~
+
+## LinkedBlockingQueue
+~~~
+LinkedBlockingQueue：链表实现 + 双锁分离，默认无界（可指定容量）、读写并行。
+
+LinkedBlockingQueue 把入队和出队的锁彻底分离，实现读写并行：
+
+（1）入队锁（putLock）—— 仅管控入队操作，尾结点入队
+（2）出队锁（takeLock）—— 仅管控出队操作，头结点出队
+
+双锁优势：入队线程只竞争 putLock，出队线程只竞争 takeLock，读写操作完全并行，高并发下性能远高于 ArrayBlockingQueue。
+
+
+核心是「高并发、大容量 / 无界」的生产者 - 消费者场景：
+1.高并发生产消费
+    如电商订单处理：生产者（下单线程）和消费者（处理线程）并发量高，需要读写并行提升性能
+2.大容量 / 无界缓存
+    如日志收集：日志产生速度不确定，需要无界队列缓存，避免丢失（需注意内存溢出风险）
+3.动态扩容场景
+    数据量波动大，链表节点按需创建，比固定数组更节省内存（低负载时）
+
+~~~
+
+
+## ArrayBlockingQueue  VS   LinkedBlockingQueue
+~~~
+维度                      ArrayBlockingQueue                          LinkedBlockingQueue
+锁设计                 全局独占锁（1 个 ReentrantLock）                双锁分离（putLock+takeLock）
+读写关系                读写互斥，同一时间只能读 / 写其一                  读写并行，入队 / 出队互不阻塞
+Condition 数量       2 个（notEmpty/notFull），绑定全局锁      2 个（notEmpty 绑定 takeLock，notFull 绑定 putLock）
+容量特性                强制有界（初始化必须指定容量）                 默认无界（Integer.MAX_VALUE），可指定有界
+结构实现                    循环数组，无扩容开销                          单向链表，动态扩容（节点按需创建）
+~~~
+
+
 ##  方法
+~~~
 阻塞队列提供了四种处理方法:
 
 方法\处理方式  抛出异常      返回特殊值       一直阻塞      超时退出
 插入方法      add(e)        offer(e)         put(e)    offer(e,time,unit)
 移除方法     remove()       poll()           take()    poll(time,unit)
 检查方法    element()       peek()           不可用     不可用
+~~~
 
 ## SynchronousQueue
 ~~~
