@@ -39,6 +39,8 @@ public class BatchAsyncTest {
         List<Point> result = allFutures.thenApply(v -> futureList.stream().map(CompletableFuture::join).collect(Collectors.toList())).join();
 
         System.out.println(JSON.toJSONString(result));
+
+        executor.shutdown();
     }
 
     private static Point buidPoint(Point point) {
