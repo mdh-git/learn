@@ -175,3 +175,23 @@ AutoConfigurationImportSelector → 从配置文件加载候选自动配置类�
 BeanFactory → 根据自动配置类中的 @Bean 定义创建组件（实例化 → 注入 → 初始化 → 注册）；
 @ConditionalOnMissingBean → 允许开发者自定义 Bean 覆盖默认组件。
 ~~~
+
+
+## 原理
+~~~
+核心理念： 约定大于配置
+
+用约定替代繁琐配置，框架定义默认的规则。开发者只需要遵循这些规则，就不用手动配置大量重复的配置文件
+
+1.依赖管理的约定
+    通过Spring Boot Starter的启动器，框架整合好了对应场景的依赖版本，不需要手动的去处理依赖冲突
+2.配置的约定
+    默认加载applicant.properties 或者 yaml文件，作为配置文件，简化xml文件的配置
+    
+    很多组件都有默认的配置，数据库连接 redis连接等
+3.自动装配的约定
+    通过扫描 META-INF/spring.factories，框架会自动识别并加载约定路径下的配置类，把Bean注入到IOC容器
+    比如引入 MyBatis Starter，会自动装配SqlSessionFactory，减少手动装配
+    
+ 
+~~~
