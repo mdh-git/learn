@@ -110,3 +110,11 @@ final boolean nonfairTryAcquire(int acquires) {
 
 相对来说，非公平锁会有更好的性能，因为它的吞吐量比较大。当然，非公平锁让获取锁的时间变得更加不确定，可能会导致在阻塞队列中的线程长期处于饥饿状态。
 ~~~
+
+
+~~~
+ReentrantLock 的强大功能依赖于其底层实现——AQS (AbstractQueuedSynchronizer)。
+AQS 框架：AQS 是 Java 并发包中实现同步器的核心框架。它使用一个 int 类型的 state 变量来表示同步状态（对于 ReentrantLock，state 就是锁的重入次数），并使用一个 FIFO 的双向队列（CLH 队列的变体）来管理所有等待获取锁的线程。
+加锁流程：当线程调用 lock() 时，会首先尝试通过 CAS 操作修改 state 值来获取锁。如果失败，线程会被封装成一个节点并加入 AQS 队列尾部，然后通过 LockSupport.park() 挂起，等待被唤醒。
+解锁流程：当持有锁的线程调用 unlock() 时，state 值会减一。如果 state 变为 0，表示锁被完全释放，AQS 会唤醒队列中的下一个线程来竞争锁。
+~~~
