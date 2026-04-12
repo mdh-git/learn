@@ -1,4 +1,4 @@
-package com.mdh.thread.concurrent;
+package com.mdh.thread.concurrent.CompletableFuture;
 
 import lombok.extern.slf4j.Slf4j;
 
