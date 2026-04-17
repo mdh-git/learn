@@ -170,3 +170,55 @@ bean的销毁
 Spring 通过三级缓存（singletonFactories, earlySingletonObjects, singletonObjects）来解决单例 Bean 的 setter 循环依赖。
 如果是构造器循环依赖，则无法自动解决，会抛出异常。
 ~~~
+
+
+## Bean的创建顺序如何控制
+~~~
+Spring 容器会自动根据依赖关系（Dependency）来决定顺序，但在没有显式依赖的情况下，顺序是不确定的。
+
+场景：
+ A对象的属性有B对象，怎么保证B在A之前创建
+ 
+ 
+1. 依赖注入（最推荐，隐式控制）
+    Spring 最推崇的方式。如果 Bean A 依赖 Bean B，Spring 自然会先创建 Bean B。
+        构造器注入：
+            通过构造函数传递依赖，Spring 必须先实例化参数中的 Bean，才能实例化当前 Bean。
+        Autowired 字段/Setter 注入：
+            原理同上，Spring 在属性填充阶段会确保依赖的 Bean 已经存在。
+        
+@Component
+public class BeanA {
+    // Spring 会先创建 BeanB，再创建 BeanA
+    public BeanA(BeanB beanB) {
+        System.out.println("BeanA 初始化");
+    }
+}
+
+
+2.@DependsOn 注解（显式强制控制）
+@Component
+@DependsOn("beanB") // 强制 spring 先初始化 beanB
+public class BeanA {
+    public BeanA() {
+        System.out.println("BeanA 初始化");
+    }
+}
+
+@Component
+public class BeanB {
+    public BeanB() {
+        System.out.println("BeanB 初始化");
+    }
+}
+注意：
+    注解中的值必须是 Bean 的名称（默认是类名首字母小写，或者 @Component("customName") 指定的名字）。
+    在 @Configuration 类中定义 @Bean 时也可以使用该注解。
+    @DependsOn只适合一对一的场景
+    
+    
+2.所有的bean对象都存在beanDefinitionMap
+    实现BeanDefinitionRegistryPostProcessor接口
+    钩子函数回调  postPostProcessBeanDefinitionRegistry()方法
+        按照对象的顺序注册到IOC容器中
+~~~
