@@ -1,5 +1,7 @@
 # Redis 持久化
-
+~~~
+https://mp.weixin.qq.com/s/SYhkl6BJk77LWoUSFHfYbw
+~~~
 
 ## 持久化
 ~~~
@@ -72,4 +74,67 @@ Redis 4.0 开始支持 RDB 和 AOF 的混合持久化（默认关闭，可以通
  当子进程完成创建新 AOF 文件的工作之后，服务器会将重写缓冲区中的所有内容追加到新 AOF 文件的末尾，使得新旧两个 AOF 文件所保存的数据库状态一致。
  最后，服务器用新的 AOF 文件替换旧的 AOF 文件，以此来完成 AOF 文件重写操作
 ~~~
- 
+
+## Redis 7.0.0 开始，Redis 使用Multi Part AOF机制
+~~~
+Multi Part AOF 就是将原来的单个 AOF 文件拆分成多个 AOF 文件。在 Multi Part AOF 中，AOF 文件被分为三种类型，
+分别为：
+    BASE：表示基础 AOF 文件，它一般由子进程通过重写产生，该文件最多只有一个。
+    INCR：表示增量 AOF 文件，它一般会在 AOFRW 开始执行时被创建，该文件可能存在多个。
+    HISTORY：表示历史 AOF 文件，它由 BASE 和 INCR AOF 变化而来，每次 AOFRW 成功完成时，本次 AOFRW 之前对应的 BASE 和 INCR AOF 都将变为 HISTORY，HISTORY 类型的 AOF 会被 Redis 自动删除。
+~~~
+
+## AOF 为什么是在执行完命令之后记录日志？
+~~~
+关系型数据库（如 MySQL）通常都是执行命令之前记录日志（方便故障恢复），而 Redis AOF 持久化机制是在执行完命令之后再记录日志。
+
+为什么是在执行完命令之后记录日志呢？
+    避免额外的检查开销，AOF 记录日志不会对命令进行语法检查；
+    在命令执行完之后再记录，不会阻塞当前的命令执行。
+    
+这样也带来了风险（我在前面介绍 AOF 持久化的时候也提到过）：
+    如果刚执行完命令 Redis 就宕机会导致对应的修改丢失；
+    可能会阻塞后续其他命令的执行（AOF 记录日志是在 Redis 主线程中进行的）。
+~~~
+
+## AOF 重写
+~~~
+当 AOF 变得太大时，Redis 能够在后台自动重写 AOF 产生一个新的 AOF 文件，这个新的 AOF 文件和原有的 AOF 文件所保存的数据库状态一样，但体积更小。
+
+
+~~~
+
+
+## 生产环境监控建议：
+~~~
+# 监控 AOF rewrite 状态
+redis-cli INFO persistence | grep aof_rewrite_in_progress
+
+# 监控 AOF 文件大小增长
+redis-cli INFO persistence | grep aof_current_size
+redis-cli INFO persistence | grep aof_base_size
+
+# 检查磁盘和 inode 使用率
+df -h /var/lib/redis
+df -i /var/lib/redis
+
+# 设置 AOF rewrite 期间增量 fsync 策略（Redis 7.0+）
+# aof-rewrite-incremental-sync yes
+
+
+# 完整生产配置示例
+appendonly yes
+aof-use-rdb-preamble yes
+
+# 性能优化
+aof-rewrite-incremental-fsync yes # 增量 fsync，减少磁盘 I/O 峰值
+# 延迟敏感场景（推荐 yes）
+no-appendfsync-on-rewrite yes # 重写期间暂停 fsync，避免阻塞
+# 数据安全场景（推荐 no）
+no-appendfsync-on-rewrite no # 重写期间仍执行 fsync，可能阻塞但更安全
+
+# 容量规划建议：
+# - 预留 2x 内存作为磁盘空间
+# - 保持单个 AOF 文件 < 16GB
+# - 监控 aof_delayed_fsync 指标
+~~~

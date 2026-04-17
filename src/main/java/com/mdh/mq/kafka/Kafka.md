@@ -169,3 +169,19 @@ https://blog.csdn.net/Fireworkit/article/details/150486970
     3.提高吞吐量：减少了数据传输路径上的延迟
     4.降低上下文切换：减少了用户态和内核态之间的切换次数
 ~~~
+
+## kafka实现延迟队列
+~~~
+参考 https://mp.weixin.qq.com/s/2DdqcqVvH8iLf6qy1h-Lgg
+
+外部存储 + 定时调度（最推荐，精度最高）
+
+原理：利用 Redis 的 ZSet（有序集合）或数据库来存储延迟消息。
+流程：
+    1.生产者将消息和“执行时间”写入 Redis ZSet（Score 为执行时间戳）。
+    2.一个独立的调度服务（Scheduler）不断轮询 Redis，取出当前时间已到期的消息。
+    3.调度服务将到期的消息发送到 Kafka 的普通 Topic 中。
+    4.业务消费者正常消费该 Topic。
+优点：延迟精准，不依赖 Kafka 内部机制，支持任意时长延迟。
+缺点：引入了 Redis 等外部组件，架构稍微复杂。
+~~~
